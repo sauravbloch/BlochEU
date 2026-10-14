@@ -1,0 +1,266 @@
+{% doc %}
+  @prompt
+    create image with text block with 10 padding, create 2 image with text in the same block, allow text to change alignment, add padding around both images and include the text, make this adjustable in size and also so i can change the colour, put a gap in between the padding of each image, down the middle , the gap in the middle needs to be white, so two seperate paddings 
+{% enddoc %}
+{%- liquid
+  assign block_padding = block.settings.block_padding | default: 10
+  assign image_padding = block.settings.image_padding | default: 0
+  assign middle_gap = block.settings.middle_gap | default: 20
+  assign text_alignment = block.settings.text_alignment | default: 'left'
+  assign background_color = block.settings.background_color | default: '#ffffff'
+  assign item_background_color = block.settings.item_background_color | default: '#f5f5f5'
+  assign text_color = block.settings.text_color | default: '#0e0e0e'
+  assign image_width = block.settings.image_width | default: 50
+-%}
+
+<style>
+  .image-with-text-block-{{ block.id }} {
+    padding: {{ block_padding }}px;
+    background-color: {{ background_color }};
+  }
+  
+  .image-with-text-block-{{ block.id }} .image-text-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: {{ middle_gap }}px;
+    align-items: flex-start;
+  }
+  
+  .image-with-text-block-{{ block.id }} .image-text-item {
+    flex: 1 1 calc(50% - {{ middle_gap | divided_by: 2 }}px);
+    min-width: 280px;
+    padding: {{ image_padding }}px;
+    background-color: {{ item_background_color }};
+  }
+  
+  .image-with-text-block-{{ block.id }} .image-wrapper {
+    width: {{ image_width }}%;
+    margin: 0 auto {{ image_padding }}px;
+  }
+  
+  .image-with-text-block-{{ block.id }} .image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  .image-with-text-block-{{ block.id }} .text-content {
+    text-align: {{ text_alignment }};
+    padding: {{ image_padding }}px;
+  }
+  
+  .image-with-text-block-{{ block.id }} .text-content h3 {
+    margin: 0 0 10px;
+    color: {{ text_color }};
+  }
+  
+  .image-with-text-block-{{ block.id }} .text-content p {
+    margin: 0;
+    color: {{ text_color }};
+  }
+  
+  @media screen and (max-width: 768px) {
+    .image-with-text-block-{{ block.id }} .image-text-item {
+      flex: 1 1 100%;
+    }
+  }
+</style>
+
+<div class="image-with-text-block-{{ block.id }}">
+  <div class="image-text-container">
+    {%- comment -%} First Image with Text {%- endcomment -%}
+    <div class="image-text-item">
+      {%- if block.settings.image_1 != blank -%}
+        <div class="image-wrapper">
+          <img 
+            src="{{ block.settings.image_1 | image_url: width: 800 }}"
+            alt="{{ block.settings.image_1.alt | escape }}"
+            loading="lazy"
+            width="{{ block.settings.image_1.width }}"
+            height="{{ block.settings.image_1.height }}"
+          >
+        </div>
+      {%- else -%}
+        <div class="image-wrapper">
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      
+      <div class="text-content">
+        {%- if block.settings.heading_1 != blank -%}
+          <h3>{{ block.settings.heading_1 }}</h3>
+        {%- endif -%}
+        {%- if block.settings.text_1 != blank -%}
+          <p>{{ block.settings.text_1 }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+    
+    {%- comment -%} Second Image with Text {%- endcomment -%}
+    <div class="image-text-item">
+      {%- if block.settings.image_2 != blank -%}
+        <div class="image-wrapper">
+          <img 
+            src="{{ block.settings.image_2 | image_url: width: 800 }}"
+            alt="{{ block.settings.image_2.alt | escape }}"
+            loading="lazy"
+            width="{{ block.settings.image_2.width }}"
+            height="{{ block.settings.image_2.height }}"
+          >
+        </div>
+      {%- else -%}
+        <div class="image-wrapper">
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      
+      <div class="text-content">
+        {%- if block.settings.heading_2 != blank -%}
+          <h3>{{ block.settings.heading_2 }}</h3>
+        {%- endif -%}
+        {%- if block.settings.text_2 != blank -%}
+          <p>{{ block.settings.text_2 }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image with Text (Dual)",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "block_padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Block padding",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "image_padding",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding around images and text",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "middle_gap",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "White gap between sections",
+      "default": 20,
+      "info": "Creates white space between the two sections"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Image width",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color (gap color)",
+      "default": "#ffffff",
+      "info": "This color shows in the gap between sections"
+    },
+    {
+      "type": "color",
+      "id": "item_background_color",
+      "label": "Section background color",
+      "default": "#f5f5f5",
+      "info": "Background color for each image section"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "header",
+      "content": "First Image with Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "text",
+      "id": "heading_1",
+      "label": "Heading 1",
+      "default": "First Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "text_1",
+      "label": "Text 1",
+      "default": "Add your description here"
+    },
+    {
+      "type": "header",
+      "content": "Second Image with Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "text",
+      "id": "heading_2",
+      "label": "Heading 2",
+      "default": "Second Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "text_2",
+      "label": "Text 2",
+      "default": "Add your description here"
+    }
+  ]
+}
+{% endschema %}

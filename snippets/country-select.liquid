@@ -1,0 +1,31 @@
+<div class="utils__item country-selector desktop hide-for-search">
+  <form name="countryselect" class="countrySelect">
+    <select name="menu" onChange="window.document.location.href=this.options[this.selectedIndex].value;" value="GO">
+
+      <option selected="selected" value="{{ section.settings.country_link1 }}">{{ section.settings.country_name1 }}</option>
+
+      <option value="{{ section.settings.country_link2 }}">{{ section.settings.country_name2 }}</option>
+
+      {%- if section.settings.country_name3 != blank -%}
+      <option value="{{ section.settings.country_link3 }}">{{ section.settings.country_name3 }}</option>
+      {%- endif -%}
+
+      {%- if section.settings.country_name4 != blank -%}
+      <option value="{{ section.settings.country_link4 }}">{{ section.settings.country_name4 }}</option>
+      {%- endif -%}
+
+      {%- if section.settings.country_name5 != blank -%}
+      <option value="{{ section.settings.country_link5 }}">{{ section.settings.country_name5 }}</option>
+      {%- endif -%}
+
+      {%- if section.settings.country_name6 != blank -%}
+      <option value="{{ section.settings.country_link6 }}">{{ section.settings.country_name6 }}</option>
+      {%- endif -%}
+
+      {%- if section.settings.country_name7 != blank -%}
+      <option value="{{ section.settings.country_link7 }}">{{ section.settings.country_name7 }}</option>
+      {%- endif -%}
+      
+    </select>
+  </form>
+</div>

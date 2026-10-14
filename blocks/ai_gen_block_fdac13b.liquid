@@ -1,0 +1,829 @@
+{% doc %}
+  @prompt
+    create a split banner block with the able to change the overlay text position via toggle, allow left banner to be width 65 and right to be width 35, allow spacing between two banners, show heading, subheading and cta link text of the left banner underneath the image on mobile, make the CTA links instead of buttons, allow different text colours, fonts and sizes for the left and right banners, allow the text on the left banner to be condensed to 250, allow mobile text colour to be different to desktop. Allow text position, Content padding, Text max width, Heading spacing, Link spacing to be edited.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-split-banner-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-split-banner__container-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.banner_spacing }}px;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+  }
+
+  .ai-split-banner__item-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-split-banner__item--left-{{ ai_gen_id }} {
+    width: 65%;
+  }
+
+  .ai-split-banner__item--right-{{ ai_gen_id }} {
+    width: 35%;
+  }
+
+  .ai-split-banner__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: {{ block.settings.min_height }}px;
+  }
+
+  .ai-split-banner__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ai-split-banner__placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: {{ block.settings.min_height }}px;
+  }
+
+  .ai-split-banner__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .ai-split-banner__overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: {{ block.settings.content_padding }}px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+
+  .ai-split-banner__overlay--left-{{ ai_gen_id }} {
+    {% if block.settings.text_position_left == 'top_left' %}
+      justify-content: flex-start;
+      align-items: flex-start;
+    {% elsif block.settings.text_position_left == 'top_center' %}
+      justify-content: flex-start;
+      align-items: center;
+    {% elsif block.settings.text_position_left == 'top_right' %}
+      justify-content: flex-start;
+      align-items: flex-end;
+    {% elsif block.settings.text_position_left == 'middle_left' %}
+      justify-content: center;
+      align-items: flex-start;
+    {% elsif block.settings.text_position_left == 'middle_center' %}
+      justify-content: center;
+      align-items: center;
+    {% elsif block.settings.text_position_left == 'middle_right' %}
+      justify-content: center;
+      align-items: flex-end;
+    {% elsif block.settings.text_position_left == 'bottom_left' %}
+      justify-content: flex-end;
+      align-items: flex-start;
+    {% elsif block.settings.text_position_left == 'bottom_center' %}
+      justify-content: flex-end;
+      align-items: center;
+    {% elsif block.settings.text_position_left == 'bottom_right' %}
+      justify-content: flex-end;
+      align-items: flex-end;
+    {% endif %}
+  }
+
+  .ai-split-banner__overlay--right-{{ ai_gen_id }} {
+    {% if block.settings.text_position_right == 'top_left' %}
+      justify-content: flex-start;
+      align-items: flex-start;
+    {% elsif block.settings.text_position_right == 'top_center' %}
+      justify-content: flex-start;
+      align-items: center;
+    {% elsif block.settings.text_position_right == 'top_right' %}
+      justify-content: flex-start;
+      align-items: flex-end;
+    {% elsif block.settings.text_position_right == 'middle_left' %}
+      justify-content: center;
+      align-items: flex-start;
+    {% elsif block.settings.text_position_right == 'middle_center' %}
+      justify-content: center;
+      align-items: center;
+    {% elsif block.settings.text_position_right == 'middle_right' %}
+      justify-content: center;
+      align-items: flex-end;
+    {% elsif block.settings.text_position_right == 'bottom_left' %}
+      justify-content: flex-end;
+      align-items: flex-start;
+    {% elsif block.settings.text_position_right == 'bottom_center' %}
+      justify-content: flex-end;
+      align-items: center;
+    {% elsif block.settings.text_position_right == 'bottom_right' %}
+      justify-content: flex-end;
+      align-items: flex-end;
+    {% endif %}
+  }
+
+  .ai-split-banner__content-{{ ai_gen_id }} {
+    max-width: {{ block.settings.text_max_width }}px;
+    width: 100%;
+  }
+
+  .ai-split-banner__content--left-{{ ai_gen_id }} {
+    max-width: 250px;
+  }
+
+  .ai-split-banner__heading--left-{{ ai_gen_id }} {
+    color: {{ block.settings.heading_color_left }};
+    font-size: {{ block.settings.heading_size_left }}px;
+    font-family: {{ block.settings.heading_font_left.family }}, {{ block.settings.heading_font_left.fallback_families }};
+    font-weight: {{ block.settings.heading_font_left.weight }};
+    font-style: {{ block.settings.heading_font_left.style }};
+    margin: 0 0 {{ block.settings.heading_spacing }}px 0;
+    line-height: 1.2;
+  }
+
+  .ai-split-banner__heading--right-{{ ai_gen_id }} {
+    color: {{ block.settings.heading_color_right }};
+    font-size: {{ block.settings.heading_size_right }}px;
+    font-family: {{ block.settings.heading_font_right.family }}, {{ block.settings.heading_font_right.fallback_families }};
+    font-weight: {{ block.settings.heading_font_right.weight }};
+    font-style: {{ block.settings.heading_font_right.style }};
+    margin: 0 0 {{ block.settings.heading_spacing }}px 0;
+    line-height: 1.2;
+  }
+
+  .ai-split-banner__subheading--left-{{ ai_gen_id }} {
+    color: {{ block.settings.subheading_color_left }};
+    font-size: {{ block.settings.subheading_size_left }}px;
+    font-family: {{ block.settings.subheading_font_left.family }}, {{ block.settings.subheading_font_left.fallback_families }};
+    font-weight: {{ block.settings.subheading_font_left.weight }};
+    font-style: {{ block.settings.subheading_font_left.style }};
+    margin: 0 0 {{ block.settings.link_spacing }}px 0;
+    line-height: 1.4;
+  }
+
+  .ai-split-banner__subheading--right-{{ ai_gen_id }} {
+    color: {{ block.settings.subheading_color_right }};
+    font-size: {{ block.settings.subheading_size_right }}px;
+    font-family: {{ block.settings.subheading_font_right.family }}, {{ block.settings.subheading_font_right.fallback_families }};
+    font-weight: {{ block.settings.subheading_font_right.weight }};
+    font-style: {{ block.settings.subheading_font_right.style }};
+    margin: 0 0 {{ block.settings.link_spacing }}px 0;
+    line-height: 1.4;
+  }
+
+  .ai-split-banner__link--left-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color_left }};
+    font-size: {{ block.settings.link_size_left }}px;
+    font-family: {{ block.settings.link_font_left.family }}, {{ block.settings.link_font_left.fallback_families }};
+    font-weight: {{ block.settings.link_font_left.weight }};
+    font-style: {{ block.settings.link_font_left.style }};
+    text-decoration: underline;
+    display: inline-block;
+  }
+
+  .ai-split-banner__link--right-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color_right }};
+    font-size: {{ block.settings.link_size_right }}px;
+    font-family: {{ block.settings.link_font_right.family }}, {{ block.settings.link_font_right.fallback_families }};
+    font-weight: {{ block.settings.link_font_right.weight }};
+    font-style: {{ block.settings.link_font_right.style }};
+    text-decoration: underline;
+    display: inline-block;
+  }
+
+  .ai-split-banner__mobile-content-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-split-banner__container-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: {{ block.settings.banner_spacing_mobile }}px;
+      width: 100%;
+    }
+
+    .ai-split-banner__item--left-{{ ai_gen_id }},
+    .ai-split-banner__item--right-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    .ai-split-banner__overlay--left-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-split-banner__mobile-content-{{ ai_gen_id }} {
+      display: block;
+      padding: {{ block.settings.mobile_content_padding }}px;
+    }
+
+    .ai-split-banner__mobile-heading-{{ ai_gen_id }} {
+      color: {{ block.settings.mobile_heading_color }};
+      font-size: {{ block.settings.mobile_heading_size }}px;
+      margin: 0 0 {{ block.settings.heading_spacing }}px 0;
+      line-height: 1.2;
+    }
+
+    .ai-split-banner__mobile-subheading-{{ ai_gen_id }} {
+      color: {{ block.settings.mobile_subheading_color }};
+      font-size: {{ block.settings.mobile_subheading_size }}px;
+      margin: 0 0 {{ block.settings.link_spacing }}px 0;
+      line-height: 1.4;
+    }
+
+    .ai-split-banner__mobile-link-{{ ai_gen_id }} {
+      color: {{ block.settings.mobile_link_color }};
+      font-size: {{ block.settings.mobile_link_size }}px;
+      text-decoration: underline;
+      display: inline-block;
+    }
+
+    .ai-split-banner__image-wrapper-{{ ai_gen_id }} {
+      min-height: {{ block.settings.min_height_mobile }}px;
+    }
+
+    .ai-split-banner__placeholder-{{ ai_gen_id }} {
+      min-height: {{ block.settings.min_height_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-split-banner-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-split-banner__container-{{ ai_gen_id }}">
+    <div class="ai-split-banner__item-{{ ai_gen_id }} ai-split-banner__item--left-{{ ai_gen_id }}">
+      <div class="ai-split-banner__image-wrapper-{{ ai_gen_id }}">
+        {% if block.settings.image_left %}
+          <img
+            src="{{ block.settings.image_left | image_url: width: 2000 }}"
+            alt="{{ block.settings.image_left.alt | escape }}"
+            loading="lazy"
+            width="{{ block.settings.image_left.width }}"
+            height="{{ block.settings.image_left.height }}"
+            class="ai-split-banner__image-{{ ai_gen_id }}"
+          >
+        {% else %}
+          <div class="ai-split-banner__placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+
+        <div class="ai-split-banner__overlay-{{ ai_gen_id }} ai-split-banner__overlay--left-{{ ai_gen_id }}">
+          <div class="ai-split-banner__content-{{ ai_gen_id }} ai-split-banner__content--left-{{ ai_gen_id }}">
+            {% if block.settings.heading_left != blank %}
+              <h2 class="ai-split-banner__heading--left-{{ ai_gen_id }}">
+                {{ block.settings.heading_left }}
+              </h2>
+            {% endif %}
+
+            {% if block.settings.subheading_left != blank %}
+              <div class="ai-split-banner__subheading--left-{{ ai_gen_id }}">
+                {{ block.settings.subheading_left }}
+              </div>
+            {% endif %}
+
+            {% if block.settings.link_text_left != blank and block.settings.link_url_left != blank %}
+              <a
+                href="{{ block.settings.link_url_left }}"
+                class="ai-split-banner__link--left-{{ ai_gen_id }}"
+              >
+                {{ block.settings.link_text_left }}
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-split-banner__mobile-content-{{ ai_gen_id }}">
+        {% if block.settings.heading_left != blank %}
+          <h2 class="ai-split-banner__mobile-heading-{{ ai_gen_id }}">
+            {{ block.settings.heading_left }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.subheading_left != blank %}
+          <div class="ai-split-banner__mobile-subheading-{{ ai_gen_id }}">
+            {{ block.settings.subheading_left }}
+          </div>
+        {% endif %}
+
+        {% if block.settings.link_text_left != blank and block.settings.link_url_left != blank %}
+          <a
+            href="{{ block.settings.link_url_left }}"
+            class="ai-split-banner__mobile-link-{{ ai_gen_id }}"
+          >
+            {{ block.settings.link_text_left }}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-split-banner__item-{{ ai_gen_id }} ai-split-banner__item--right-{{ ai_gen_id }}">
+      <div class="ai-split-banner__image-wrapper-{{ ai_gen_id }}">
+        {% if block.settings.image_right %}
+          <img
+            src="{{ block.settings.image_right | image_url: width: 2000 }}"
+            alt="{{ block.settings.image_right.alt | escape }}"
+            loading="lazy"
+            width="{{ block.settings.image_right.width }}"
+            height="{{ block.settings.image_right.height }}"
+            class="ai-split-banner__image-{{ ai_gen_id }}"
+          >
+        {% else %}
+          <div class="ai-split-banner__placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+
+        <div class="ai-split-banner__overlay-{{ ai_gen_id }} ai-split-banner__overlay--right-{{ ai_gen_id }}">
+          <div class="ai-split-banner__content-{{ ai_gen_id }}">
+            {% if block.settings.heading_right != blank %}
+              <h2 class="ai-split-banner__heading--right-{{ ai_gen_id }}">
+                {{ block.settings.heading_right }}
+              </h2>
+            {% endif %}
+
+            {% if block.settings.subheading_right != blank %}
+              <div class="ai-split-banner__subheading--right-{{ ai_gen_id }}">
+                {{ block.settings.subheading_right }}
+              </div>
+            {% endif %}
+
+            {% if block.settings.link_text_right != blank and block.settings.link_url_right != blank %}
+              <a
+                href="{{ block.settings.link_url_right }}"
+                class="ai-split-banner__link--right-{{ ai_gen_id }}"
+              >
+                {{ block.settings.link_text_right }}
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Split banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "banner_spacing",
+      "label": "Desktop spacing between banners",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "banner_spacing_mobile",
+      "label": "Mobile spacing between banners",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "Minimum height on mobile",
+      "min": 200,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "label": "Content padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_content_padding",
+      "label": "Mobile content padding",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "text_max_width",
+      "label": "Text max width",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "label": "Heading spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "link_spacing",
+      "label": "Link spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Left banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_left",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "text_position_left",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "top_left",
+          "label": "Top left"
+        },
+        {
+          "value": "top_center",
+          "label": "Top center"
+        },
+        {
+          "value": "top_right",
+          "label": "Top right"
+        },
+        {
+          "value": "middle_left",
+          "label": "Middle left"
+        },
+        {
+          "value": "middle_center",
+          "label": "Middle center"
+        },
+        {
+          "value": "middle_right",
+          "label": "Middle right"
+        },
+        {
+          "value": "bottom_left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom_center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom_right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "middle_center"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading_left",
+      "label": "Heading",
+      "default": "Left banner"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font_left",
+      "label": "Heading font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_left",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "heading_color_left",
+      "label": "Heading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading_left",
+      "label": "Subheading",
+      "default": "<p>Shop the latest collection</p>"
+    },
+    {
+      "type": "font_picker",
+      "id": "subheading_font_left",
+      "label": "Subheading font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_left",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "subheading_color_left",
+      "label": "Subheading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "link_text_left",
+      "label": "Link text",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "link_url_left",
+      "label": "Link URL"
+    },
+    {
+      "type": "font_picker",
+      "id": "link_font_left",
+      "label": "Link font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "link_size_left",
+      "label": "Link size",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "link_color_left",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "header",
+      "content": "Right banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_right",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "text_position_right",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "top_left",
+          "label": "Top left"
+        },
+        {
+          "value": "top_center",
+          "label": "Top center"
+        },
+        {
+          "value": "top_right",
+          "label": "Top right"
+        },
+        {
+          "value": "middle_left",
+          "label": "Middle left"
+        },
+        {
+          "value": "middle_center",
+          "label": "Middle center"
+        },
+        {
+          "value": "middle_right",
+          "label": "Middle right"
+        },
+        {
+          "value": "bottom_left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom_center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom_right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "middle_center"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading_right",
+      "label": "Heading",
+      "default": "Right banner"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font_right",
+      "label": "Heading font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_right",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "heading_color_right",
+      "label": "Heading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading_right",
+      "label": "Subheading",
+      "default": "<p>Discover new styles</p>"
+    },
+    {
+      "type": "font_picker",
+      "id": "subheading_font_right",
+      "label": "Subheading font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_right",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "subheading_color_right",
+      "label": "Subheading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "link_text_right",
+      "label": "Link text",
+      "default": "Explore"
+    },
+    {
+      "type": "url",
+      "id": "link_url_right",
+      "label": "Link URL"
+    },
+    {
+      "type": "font_picker",
+      "id": "link_font_right",
+      "label": "Link font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "link_size_right",
+      "label": "Link size",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "link_color_right",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "color",
+      "id": "mobile_heading_color",
+      "label": "Heading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "range",
+      "id": "mobile_subheading_size",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "mobile_subheading_color",
+      "label": "Subheading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "range",
+      "id": "mobile_link_size",
+      "label": "Link size",
+      "min": 12,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "mobile_link_color",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split banner"
+    }
+  ]
+}
+{% endschema %}

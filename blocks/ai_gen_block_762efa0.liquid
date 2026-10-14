@@ -1,0 +1,657 @@
+{% doc %}
+  @prompt
+    can you create a column block that will appear as a row of 4 on desktop but will appear as a row of 4 that is able to scroll on mobile, show 2 columns on screen before scroll on mobile, can you give the block a heading and 2 subheading blocks, with the option to have 5 columns but can be hidden, allow for an image in each column, make scrollable between columns on mobile, allow to scroll across all columns on mobile, show scroll bar underneath columns, reduce top padding, allow heading text to change font , ensure each image can be linked to, for each of the columns can we have  heading and subheading text. can we allow edits to layout including desktop width and padding, when 5 columns are selected can they appear on same row and when column is hidden on desktop also hide column on mobile
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-scrollable-columns-{{ ai_gen_id }} {
+    width: 100%;
+    display: block;
+    padding-top: {{ block.settings.padding_top }}px;
+    padding-bottom: {{ block.settings.padding_bottom }}px;
+  }
+
+  .ai-scrollable-columns__inner-{{ ai_gen_id }} {
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .ai-scrollable-columns__header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .ai-scrollable-columns__heading-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-style: {{ block.settings.heading_font.style }};
+    font-size: {{ block.settings.heading_size }}px;
+    margin: 0 0 12px 0;
+    color: {{ block.settings.heading_color }};
+  }
+
+  .ai-scrollable-columns__subheading-1-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_1_size }}px;
+    margin: 0 0 8px 0;
+    color: {{ block.settings.subheading_1_color }};
+  }
+
+  .ai-scrollable-columns__subheading-2-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_2_size }}px;
+    margin: 0;
+    color: {{ block.settings.subheading_2_color }};
+  }
+
+  .ai-scrollable-columns__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: {{ block.settings.column_gap }}px;
+  }
+
+  .ai-scrollable-columns__column-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-scrollable-columns__column-{{ ai_gen_id }}.hidden {
+    display: none;
+  }
+
+  .ai-scrollable-columns__image-link-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-scrollable-columns__image-wrapper-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: {{ block.settings.image_aspect_ratio }};
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-scrollable-columns__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-scrollable-columns__image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-scrollable-columns__image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+  }
+
+  .ai-scrollable-columns__text-wrapper-{{ ai_gen_id }} {
+    text-align: {{ block.settings.text_alignment }};
+  }
+
+  .ai-scrollable-columns__column-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.column_heading_size }}px;
+    margin: 0 0 8px 0;
+    color: {{ block.settings.column_heading_color }};
+  }
+
+  .ai-scrollable-columns__column-subheading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.column_subheading_size }}px;
+    margin: 0;
+    color: {{ block.settings.column_subheading_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-scrollable-columns__grid-{{ ai_gen_id }} {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: {{ block.settings.column_gap_mobile }}px;
+      padding-bottom: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: {{ block.settings.scrollbar_color }} {{ block.settings.scrollbar_track_color }};
+    }
+
+    .ai-scrollable-columns__grid-{{ ai_gen_id }}::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .ai-scrollable-columns__grid-{{ ai_gen_id }}::-webkit-scrollbar-track {
+      background: {{ block.settings.scrollbar_track_color }};
+      border-radius: 4px;
+    }
+
+    .ai-scrollable-columns__grid-{{ ai_gen_id }}::-webkit-scrollbar-thumb {
+      background: {{ block.settings.scrollbar_color }};
+      border-radius: 4px;
+    }
+
+    .ai-scrollable-columns__column-{{ ai_gen_id }} {
+      flex: 0 0 calc((100% - {{ block.settings.column_gap_mobile }}px) / 2);
+      scroll-snap-align: start;
+    }
+  }
+{% endstyle %}
+
+<scrollable-columns-{{ ai_gen_id }} class="ai-scrollable-columns-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-scrollable-columns__inner-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank or block.settings.subheading_1 != blank or block.settings.subheading_2 != blank %}
+      <div class="ai-scrollable-columns__header-{{ ai_gen_id }}">
+        {% if block.settings.heading != blank %}
+          <h2 class="ai-scrollable-columns__heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+        {% endif %}
+        {% if block.settings.subheading_1 != blank %}
+          <div class="ai-scrollable-columns__subheading-1-{{ ai_gen_id }}">{{ block.settings.subheading_1 }}</div>
+        {% endif %}
+        {% if block.settings.subheading_2 != blank %}
+          <div class="ai-scrollable-columns__subheading-2-{{ ai_gen_id }}">{{ block.settings.subheading_2 }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="ai-scrollable-columns__grid-{{ ai_gen_id }}">
+      {% for i in (1..5) %}
+        {% liquid
+          assign image_key = 'column_' | append: i | append: '_image'
+          assign link_key = 'column_' | append: i | append: '_link'
+          assign heading_key = 'column_' | append: i | append: '_heading'
+          assign subheading_key = 'column_' | append: i | append: '_subheading'
+          assign show_key = 'show_column_' | append: i
+
+          assign column_image = block.settings[image_key]
+          assign column_link = block.settings[link_key]
+          assign column_heading = block.settings[heading_key]
+          assign column_subheading = block.settings[subheading_key]
+          assign show_column = block.settings[show_key]
+        %}
+
+        <div class="ai-scrollable-columns__column-{{ ai_gen_id }} {% unless show_column %}hidden{% endunless %}">
+          {% if column_link != blank %}
+            <a href="{{ column_link }}" class="ai-scrollable-columns__image-link-{{ ai_gen_id }}">
+          {% endif %}
+            <div class="ai-scrollable-columns__image-wrapper-{{ ai_gen_id }}">
+              {% if column_image %}
+                <img
+                  src="{{ column_image | image_url: width: 600 }}"
+                  alt="{{ column_image.alt | escape }}"
+                  loading="lazy"
+                  width="{{ column_image.width }}"
+                  height="{{ column_image.height }}"
+                  class="ai-scrollable-columns__image-{{ ai_gen_id }}"
+                >
+              {% else %}
+                <div class="ai-scrollable-columns__image-placeholder-{{ ai_gen_id }}">
+                  {{ 'image' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+          {% if column_link != blank %}
+            </a>
+          {% endif %}
+
+          {% if column_heading != blank or column_subheading != blank %}
+            <div class="ai-scrollable-columns__text-wrapper-{{ ai_gen_id }}">
+              {% if column_heading != blank %}
+                <h3 class="ai-scrollable-columns__column-heading-{{ ai_gen_id }}">{{ column_heading }}</h3>
+              {% endif %}
+              {% if column_subheading != blank %}
+                <div class="ai-scrollable-columns__column-subheading-{{ ai_gen_id }}">{{ column_subheading }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</scrollable-columns-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ScrollableColumns{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.setupAccessibility();
+      }
+
+      setupAccessibility() {
+        const grid = this.querySelector('.ai-scrollable-columns__grid-{{ ai_gen_id }}');
+        if (grid && window.innerWidth <= 749) {
+          grid.setAttribute('role', 'region');
+          grid.setAttribute('aria-label', 'Scrollable columns');
+          grid.setAttribute('tabindex', '0');
+        }
+      }
+    }
+
+    customElements.define('scrollable-columns-{{ ai_gen_id }}', ScrollableColumns{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Scrollable columns",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured collections"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Subheadings"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading_1",
+      "label": "First subheading"
+    },
+    {
+      "type": "range",
+      "id": "subheading_1_size",
+      "label": "First subheading size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "subheading_1_color",
+      "label": "First subheading color",
+      "default": "#666666"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading_2",
+      "label": "Second subheading"
+    },
+    {
+      "type": "range",
+      "id": "subheading_2_size",
+      "label": "Second subheading size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "subheading_2_color",
+      "label": "Second subheading color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Column gap (desktop)",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "column_gap_mobile",
+      "label": "Column gap (mobile)",
+      "min": 8,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Column images"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "1 / 1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "2 / 3",
+          "label": "Portrait (2:3)"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "16 / 9",
+          "label": "Landscape (16:9)"
+        },
+        {
+          "value": "3 / 2",
+          "label": "Landscape (3:2)"
+        }
+      ],
+      "default": "2 / 3"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image border radius",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Column text"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "column_heading_size",
+      "label": "Heading size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "column_heading_color",
+      "label": "Heading color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "column_subheading_size",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "column_subheading_color",
+      "label": "Subheading color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Mobile scrollbar"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_color",
+      "label": "Scrollbar color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_track_color",
+      "label": "Scrollbar track color",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "header",
+      "content": "Column 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_column_1",
+      "label": "Show column",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "column_1_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "column_1_link",
+      "label": "Link"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_1_heading",
+      "label": "Heading",
+      "default": "Column 1"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_1_subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "header",
+      "content": "Column 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_column_2",
+      "label": "Show column",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "column_2_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "column_2_link",
+      "label": "Link"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_2_heading",
+      "label": "Heading",
+      "default": "Column 2"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_2_subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "header",
+      "content": "Column 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_column_3",
+      "label": "Show column",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "column_3_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "column_3_link",
+      "label": "Link"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_3_heading",
+      "label": "Heading",
+      "default": "Column 3"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_3_subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "header",
+      "content": "Column 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_column_4",
+      "label": "Show column",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "column_4_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "column_4_link",
+      "label": "Link"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_4_heading",
+      "label": "Heading",
+      "default": "Column 4"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_4_subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "header",
+      "content": "Column 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_column_5",
+      "label": "Show column",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "column_5_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "column_5_link",
+      "label": "Link"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_5_heading",
+      "label": "Heading",
+      "default": "Column 5"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "column_5_subheading",
+      "label": "Subheading"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scrollable columns"
+    }
+  ]
+}
+{% endschema %}

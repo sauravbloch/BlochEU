@@ -1,0 +1,121 @@
+{% doc %}
+  @prompt
+    can you create me a rich text block that matches the collection title and description as used on the site, heading font - aime, description font - univers sans, allow the text to sit desktop width, can you make the heading and description automatically pull through from the collection being used on the template, heading font aime, description univers sans
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-collection-copy-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: {{ block.settings.text_alignment }};
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-collection-copy-{{ ai_gen_id }}__heading {
+    margin: 0 0 12px;
+    color: inherit;
+    font-family: 'Aime', sans-serif;
+    font-size: {{ block.settings.heading_size }}px;
+    line-height: 1.1;
+  }
+
+  .ai-collection-copy-{{ ai_gen_id }}__description {
+    color: inherit;
+    font-family: 'Univers Sans', sans-serif;
+    font-size: {{ block.settings.description_size }}px;
+    line-height: 1.4;
+  }
+
+  .ai-collection-copy-{{ ai_gen_id }}__description > :first-child {
+    margin-top: 0;
+  }
+
+  .ai-collection-copy-{{ ai_gen_id }}__description > :last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-collection-copy-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    .ai-collection-copy-{{ ai_gen_id }}__heading {
+      font-size: {{ block.settings.heading_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-collection-copy-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if collection != blank %}
+    {% if collection.title != blank %}
+      <h2 class="ai-collection-copy-{{ ai_gen_id }}__heading">{{ collection.title | escape }}</h2>
+    {% endif %}
+    {% if collection.description != blank %}
+      <div class="ai-collection-copy-{{ ai_gen_id }}__description">{{ collection.description }}</div>
+    {% endif %}
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Collection rich text",
+  "settings": [
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 20,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection rich text"
+    }
+  ],
+  "tag": null,
+  "class": "collection-rich-text"
+}
+{% endschema %}

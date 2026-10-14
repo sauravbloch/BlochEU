@@ -1,0 +1,1088 @@
+{% doc %}
+  @prompt
+    create a split image block which allow the left bigger banner to have the same features as this screenshot, matching text font and ability to change the heading, subheading and CTA to be a button or link, right banner should allow for a link CTA, make the font Montserrat, increase the spacing between the letters of the heading, add heading and subheading to the right banner, right banner need to have the cta show, give the option to move heading and subheading text position with toggle,cta can be link or button option, allow the text font to be montserrat for the heading, subheading, CTA. change the text position via toggle. allow banner layout to be changed via toggle for these options: Desktop width, Left banner width, Banner height (desktop), Banner height (mobile), Gap between banners (desktop), Gap between banners (mobile), Border radius, allow to change the banner text font, give options including montserrat, allow the heading font to be light, ultra light, bold, ultra bond etc, centre the text (heading, subheading, cta) in the middle of the left banner, allow the bottom spacing the be changed via toggle (up to 40), allow bottom spacing to be changed under the heading and subheading, allow the CTA font to be extra bold , allow the stroke wight to be changed for the heading and CTA for the right banner 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-split-banner-{{ ai_gen_id }} {
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin-bottom: {{ block.settings.bottom_spacing }}px;
+  }
+
+  .ai-split-banner__container-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.gap_desktop }}px;
+  }
+
+  .ai-split-banner__left-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.left_banner_width }}%;
+    height: {{ block.settings.banner_height_desktop }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-split-banner__right-{{ ai_gen_id }} {
+    position: relative;
+    width: calc(100% - {{ block.settings.left_banner_width }}%);
+    height: {{ block.settings.banner_height_desktop }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-split-banner__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-split-banner__placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-split-banner__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .ai-split-banner__content-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+  }
+
+  .ai-split-banner__content--top-left-{{ ai_gen_id }} {
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .ai-split-banner__content--top-center-{{ ai_gen_id }} {
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ai-split-banner__content--top-right-{{ ai_gen_id }} {
+    justify-content: flex-start;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .ai-split-banner__content--middle-left-{{ ai_gen_id }} {
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .ai-split-banner__content--middle-center-{{ ai_gen_id }} {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ai-split-banner__content--middle-right-{{ ai_gen_id }} {
+    justify-content: center;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .ai-split-banner__content--bottom-left-{{ ai_gen_id }} {
+    justify-content: flex-end;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .ai-split-banner__content--bottom-center-{{ ai_gen_id }} {
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ai-split-banner__content--bottom-right-{{ ai_gen_id }} {
+    justify-content: flex-end;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .ai-split-banner__heading-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font }}, sans-serif;
+    font-weight: {{ block.settings.heading_font_weight }};
+    font-size: {{ block.settings.left_heading_size }}px;
+    color: {{ block.settings.left_heading_color }};
+    letter-spacing: {{ block.settings.left_heading_letter_spacing }}px;
+    margin: 0 0 {{ block.settings.left_heading_bottom_spacing }}px 0;
+  }
+
+  .ai-split-banner__subheading-{{ ai_gen_id }} {
+    font-family: {{ block.settings.subheading_font }}, sans-serif;
+    font-size: {{ block.settings.left_subheading_size }}px;
+    color: {{ block.settings.left_subheading_color }};
+    margin: 0 0 {{ block.settings.left_subheading_bottom_spacing }}px 0;
+  }
+
+  .ai-split-banner__cta-button-{{ ai_gen_id }} {
+    font-family: {{ block.settings.cta_font }}, sans-serif;
+    font-weight: {{ block.settings.cta_font_weight }};
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: {{ block.settings.left_cta_bg_color }};
+    color: {{ block.settings.left_cta_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.left_cta_border_radius }}px;
+    font-size: {{ block.settings.left_cta_size }}px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ai-split-banner__cta-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.left_cta_hover_bg_color }};
+    color: {{ block.settings.left_cta_hover_text_color }};
+  }
+
+  .ai-split-banner__cta-link-{{ ai_gen_id }} {
+    font-family: {{ block.settings.cta_font }}, sans-serif;
+    font-weight: {{ block.settings.cta_font_weight }};
+    color: {{ block.settings.left_cta_text_color }};
+    text-decoration: underline;
+    font-size: {{ block.settings.left_cta_size }}px;
+  }
+
+  .ai-split-banner__cta-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.left_cta_hover_text_color }};
+  }
+
+  .ai-split-banner__right-heading-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font }}, sans-serif;
+    font-weight: {{ block.settings.right_heading_font_weight }};
+    font-size: {{ block.settings.right_heading_size }}px;
+    color: {{ block.settings.right_heading_color }};
+    letter-spacing: {{ block.settings.right_heading_letter_spacing }}px;
+    margin: 0 0 {{ block.settings.right_heading_bottom_spacing }}px 0;
+  }
+
+  .ai-split-banner__right-subheading-{{ ai_gen_id }} {
+    font-family: {{ block.settings.subheading_font }}, sans-serif;
+    font-size: {{ block.settings.right_subheading_size }}px;
+    color: {{ block.settings.right_subheading_color }};
+    margin: 0 0 {{ block.settings.right_subheading_bottom_spacing }}px 0;
+  }
+
+  .ai-split-banner__right-cta-button-{{ ai_gen_id }} {
+    font-family: {{ block.settings.cta_font }}, sans-serif;
+    font-weight: {{ block.settings.right_cta_font_weight }};
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: {{ block.settings.right_cta_bg_color }};
+    color: {{ block.settings.right_cta_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.right_cta_border_radius }}px;
+    font-size: {{ block.settings.right_cta_size }}px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ai-split-banner__right-cta-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.right_cta_hover_bg_color }};
+    color: {{ block.settings.right_cta_hover_text_color }};
+  }
+
+  .ai-split-banner__right-cta-link-{{ ai_gen_id }} {
+    font-family: {{ block.settings.cta_font }}, sans-serif;
+    font-weight: {{ block.settings.right_cta_font_weight }};
+    color: {{ block.settings.right_cta_text_color }};
+    text-decoration: underline;
+    font-size: {{ block.settings.right_cta_size }}px;
+  }
+
+  .ai-split-banner__right-cta-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.right_cta_hover_text_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-split-banner__container-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: {{ block.settings.gap_mobile }}px;
+    }
+
+    .ai-split-banner__left-{{ ai_gen_id }},
+    .ai-split-banner__right-{{ ai_gen_id }} {
+      width: 100%;
+      height: {{ block.settings.banner_height_mobile }}px;
+    }
+
+    .ai-split-banner__heading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.left_heading_size }}px * 0.8);
+    }
+
+    .ai-split-banner__subheading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.left_subheading_size }}px * 0.9);
+    }
+
+    .ai-split-banner__right-heading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.right_heading_size }}px * 0.8);
+    }
+
+    .ai-split-banner__right-subheading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.right_subheading_size }}px * 0.9);
+    }
+  }
+{% endstyle %}
+
+<div class="ai-split-banner-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-split-banner__container-{{ ai_gen_id }}">
+    <div class="ai-split-banner__left-{{ ai_gen_id }}">
+      {% if block.settings.left_image %}
+        <img
+          src="{{ block.settings.left_image | image_url: width: 2000 }}"
+          alt="{{ block.settings.left_image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.left_image.width }}"
+          height="{{ block.settings.left_image.height }}"
+          class="ai-split-banner__image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-split-banner__placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+
+      <div class="ai-split-banner__content-{{ ai_gen_id }} ai-split-banner__content--{{ block.settings.left_text_position }}-{{ ai_gen_id }}">
+        {% if block.settings.left_heading != blank %}
+          <h2 class="ai-split-banner__heading-{{ ai_gen_id }}">{{ block.settings.left_heading }}</h2>
+        {% endif %}
+
+        {% if block.settings.left_subheading != blank %}
+          <div class="ai-split-banner__subheading-{{ ai_gen_id }}">{{ block.settings.left_subheading }}</div>
+        {% endif %}
+
+        {% if block.settings.left_cta_text != blank and block.settings.left_cta_link != blank %}
+          {% if block.settings.left_cta_style == 'button' %}
+            <a href="{{ block.settings.left_cta_link }}" class="ai-split-banner__cta-button-{{ ai_gen_id }}">
+              {{ block.settings.left_cta_text }}
+            </a>
+          {% else %}
+            <a href="{{ block.settings.left_cta_link }}" class="ai-split-banner__cta-link-{{ ai_gen_id }}">
+              {{ block.settings.left_cta_text }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-split-banner__right-{{ ai_gen_id }}">
+      {% if block.settings.right_image %}
+        <img
+          src="{{ block.settings.right_image | image_url: width: 2000 }}"
+          alt="{{ block.settings.right_image.alt | escape }}"
+          loading="lazy"
+          width="{{ block.settings.right_image.width }}"
+          height="{{ block.settings.right_image.height }}"
+          class="ai-split-banner__image-{{ ai_gen_id }}"
+        >
+      {% else %}
+        <div class="ai-split-banner__placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+
+      <div class="ai-split-banner__content-{{ ai_gen_id }} ai-split-banner__content--{{ block.settings.right_text_position }}-{{ ai_gen_id }}">
+        {% if block.settings.right_heading != blank %}
+          <h2 class="ai-split-banner__right-heading-{{ ai_gen_id }}">{{ block.settings.right_heading }}</h2>
+        {% endif %}
+
+        {% if block.settings.right_subheading != blank %}
+          <div class="ai-split-banner__right-subheading-{{ ai_gen_id }}">{{ block.settings.right_subheading }}</div>
+        {% endif %}
+
+        {% if block.settings.right_cta_text != blank and block.settings.right_cta_link != blank %}
+          {% if block.settings.right_cta_style == 'button' %}
+            <a href="{{ block.settings.right_cta_link }}" class="ai-split-banner__right-cta-button-{{ ai_gen_id }}">
+              {{ block.settings.right_cta_text }}
+            </a>
+          {% else %}
+            <a href="{{ block.settings.right_cta_link }}" class="ai-split-banner__right-cta-link-{{ ai_gen_id }}">
+              {{ block.settings.right_cta_text }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Split image banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "left_banner_width",
+      "label": "Left banner width",
+      "min": 30,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "banner_height_desktop",
+      "label": "Banner height (desktop)",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "banner_height_mobile",
+      "label": "Banner height (mobile)",
+      "min": 200,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "Gap between banners (desktop)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap between banners (mobile)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "bottom_spacing",
+      "label": "Bottom spacing",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font",
+      "label": "Heading font",
+      "options": [
+        {
+          "value": "Montserrat",
+          "label": "Montserrat"
+        },
+        {
+          "value": "Arial",
+          "label": "Arial"
+        },
+        {
+          "value": "Helvetica",
+          "label": "Helvetica"
+        },
+        {
+          "value": "Georgia",
+          "label": "Georgia"
+        },
+        {
+          "value": "Times New Roman",
+          "label": "Times New Roman"
+        }
+      ],
+      "default": "Montserrat"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading font weight",
+      "options": [
+        {
+          "value": "100",
+          "label": "Ultra light"
+        },
+        {
+          "value": "200",
+          "label": "Extra light"
+        },
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Ultra bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "subheading_font",
+      "label": "Subheading font",
+      "options": [
+        {
+          "value": "Montserrat",
+          "label": "Montserrat"
+        },
+        {
+          "value": "Arial",
+          "label": "Arial"
+        },
+        {
+          "value": "Helvetica",
+          "label": "Helvetica"
+        },
+        {
+          "value": "Georgia",
+          "label": "Georgia"
+        },
+        {
+          "value": "Times New Roman",
+          "label": "Times New Roman"
+        }
+      ],
+      "default": "Montserrat"
+    },
+    {
+      "type": "select",
+      "id": "cta_font",
+      "label": "CTA font",
+      "options": [
+        {
+          "value": "Montserrat",
+          "label": "Montserrat"
+        },
+        {
+          "value": "Arial",
+          "label": "Arial"
+        },
+        {
+          "value": "Helvetica",
+          "label": "Helvetica"
+        },
+        {
+          "value": "Georgia",
+          "label": "Georgia"
+        },
+        {
+          "value": "Times New Roman",
+          "label": "Times New Roman"
+        }
+      ],
+      "default": "Montserrat"
+    },
+    {
+      "type": "select",
+      "id": "cta_font_weight",
+      "label": "CTA font weight",
+      "options": [
+        {
+          "value": "100",
+          "label": "Ultra light"
+        },
+        {
+          "value": "200",
+          "label": "Extra light"
+        },
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Ultra bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "header",
+      "content": "Left banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "left_text_position",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top left"
+        },
+        {
+          "value": "top-center",
+          "label": "Top center"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "middle-left",
+          "label": "Middle left"
+        },
+        {
+          "value": "middle-center",
+          "label": "Middle center"
+        },
+        {
+          "value": "middle-right",
+          "label": "Middle right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "middle-center"
+    },
+    {
+      "type": "text",
+      "id": "left_heading",
+      "label": "Heading",
+      "default": "Left Banner Heading"
+    },
+    {
+      "type": "range",
+      "id": "left_heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "left_heading_letter_spacing",
+      "label": "Heading letter spacing",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "left_heading_color",
+      "label": "Heading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "left_heading_bottom_spacing",
+      "label": "Heading bottom spacing",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "text",
+      "id": "left_subheading",
+      "label": "Subheading",
+      "default": "Discover our collection"
+    },
+    {
+      "type": "range",
+      "id": "left_subheading_size",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "left_subheading_color",
+      "label": "Subheading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "left_subheading_bottom_spacing",
+      "label": "Subheading bottom spacing",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "text",
+      "id": "left_cta_text",
+      "label": "CTA text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "left_cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "select",
+      "id": "left_cta_style",
+      "label": "CTA style",
+      "options": [
+        {
+          "value": "button",
+          "label": "Button"
+        },
+        {
+          "value": "link",
+          "label": "Link"
+        }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "range",
+      "id": "left_cta_size",
+      "label": "CTA size",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "left_cta_bg_color",
+      "label": "CTA background color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "left_cta_text_color",
+      "label": "CTA text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "left_cta_hover_bg_color",
+      "label": "CTA hover background color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "left_cta_hover_text_color",
+      "label": "CTA hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "left_cta_border_radius",
+      "label": "CTA border radius",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Right banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "right_text_position",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top left"
+        },
+        {
+          "value": "top-center",
+          "label": "Top center"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "middle-left",
+          "label": "Middle left"
+        },
+        {
+          "value": "middle-center",
+          "label": "Middle center"
+        },
+        {
+          "value": "middle-right",
+          "label": "Middle right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "middle-center"
+    },
+    {
+      "type": "text",
+      "id": "right_heading",
+      "label": "Heading",
+      "default": "Right Banner Heading"
+    },
+    {
+      "type": "range",
+      "id": "right_heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "right_heading_letter_spacing",
+      "label": "Heading letter spacing",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "right_heading_color",
+      "label": "Heading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "right_heading_font_weight",
+      "label": "Heading font weight",
+      "options": [
+        {
+          "value": "100",
+          "label": "Ultra light"
+        },
+        {
+          "value": "200",
+          "label": "Extra light"
+        },
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Ultra bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "right_heading_bottom_spacing",
+      "label": "Heading bottom spacing",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "text",
+      "id": "right_subheading",
+      "label": "Subheading",
+      "default": "Explore more"
+    },
+    {
+      "type": "range",
+      "id": "right_subheading_size",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "right_subheading_color",
+      "label": "Subheading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "right_subheading_bottom_spacing",
+      "label": "Subheading bottom spacing",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "text",
+      "id": "right_cta_text",
+      "label": "CTA text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "right_cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "select",
+      "id": "right_cta_style",
+      "label": "CTA style",
+      "options": [
+        {
+          "value": "button",
+          "label": "Button"
+        },
+        {
+          "value": "link",
+          "label": "Link"
+        }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "range",
+      "id": "right_cta_size",
+      "label": "CTA size",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "right_cta_font_weight",
+      "label": "CTA font weight",
+      "options": [
+        {
+          "value": "100",
+          "label": "Ultra light"
+        },
+        {
+          "value": "200",
+          "label": "Extra light"
+        },
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra bold"
+        },
+        {
+          "value": "900",
+          "label": "Ultra bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "right_cta_bg_color",
+      "label": "CTA background color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "right_cta_text_color",
+      "label": "CTA text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "right_cta_hover_bg_color",
+      "label": "CTA hover background color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "right_cta_hover_text_color",
+      "label": "CTA hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "right_cta_border_radius",
+      "label": "CTA border radius",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split image banner"
+    }
+  ]
+}
+{% endschema %}

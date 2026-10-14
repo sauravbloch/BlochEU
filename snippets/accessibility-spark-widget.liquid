@@ -1,0 +1,19 @@
+
+  <script>
+  
+  
+    (function(){
+        var s = document.createElement('script'),
+        e = ! document.body ? document.querySelector('head') : document.body;
+        s.src = 'https://static.accessibilityspark.com/widget/widget.js';
+        s.async = true;
+        s.onload = function(){
+          if (typeof window['acsWidget'] !== 'undefined' && typeof window['acsWidget'].init === 'function') {
+            window['acsWidget'].init({"__sourceType":"way","statsUrl":"","footerHtml":"","invertIconColor":true,"statementLink":"","hideMobile":false,"hideTrigger":false,"language":"eu","position":"left","leadColor":"#4a4a4a","triggerColor":"#4a4a4a","triggerRadius":"5px","triggerPositionX":"left","triggerPositionY":"bottom","triggerIcon":"people","triggerSize":"small","triggerOffsetX":20,"triggerOffsetY":20,"deviceType":"desktopAndTabletAndMobile","isSameSettings":false,"triggerType":"clickable","mobile":{"invertIconColor":true,"triggerColor":"#4a4a4a","triggerIcon":"people","triggerSize":"small","triggerPositionX":"left","triggerPositionY":"bottom","triggerOffsetX":10,"triggerOffsetY":20,"triggerRadius":"50%","triggerType":"clickable"}});
+          }          
+        };
+        e.appendChild(s);
+    }());
+  
+  </script>
+    

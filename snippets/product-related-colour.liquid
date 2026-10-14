@@ -1,0 +1,14 @@
+{% for option in related_product.options_with_values %}
+  {% if option.name == 'Color' or option.name == 'Colour'%}
+    {% for value in option.values %}
+      {% assign swatch = value | handleize %}
+      {% assign swatch_file = swatch | append: '.png' %}
+
+{% if product.handle == related_product.handle %}<div class="related-swatch-text">{{ option.name }} - {{ value | handle | replace: "-", " " }}</div>{% endif %}
+
+<a href="{{ related_product.url | within: collection }}" class="color-swatch-link {% if product.handle == related_product.handle %}color-swatch-link-current{% endif %}">
+  <div class="related-swatch-img" style="background: url('{{ swatch_file | file_img_url: '24x24' }}');"></div>
+</a>    
+{% endfor %}
+  {% endif %}
+{% endfor %}

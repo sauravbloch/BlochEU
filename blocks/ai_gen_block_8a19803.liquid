@@ -1,0 +1,1026 @@
+{% doc %}
+  @prompt
+    create a split banner block which allows the left banner to change the text font to match this image and have a subheading and cta with either a button or link, allow image as background on left banner, allow to change the size of the left and right banner widths with toggle, allow heading text to be bold, italic , allow part of the heading to be bold and part to be italic, allow for spacing between the left and right banner, allow for heading and CTA link on the right banner, allow for mobile gap between left and right banner, show text overlay under the banners on mobile only, show left banner text under left banner and right banner text under right banner for mobile version, allow right banner to have background image, allow different mobile aspect ratio for left and right mobile banners, allow different mobile aspect ratio for left and right mobile banner images, allow to change the alignment and position of the left and right bannner text, allow text colour of CTA link to change, allow to change colour of the left banner CTA link
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-split-banner-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-split-banner-container-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.desktop_gap }}px;
+    width: 100%;
+  }
+
+  .ai-split-banner-side-{{ ai_gen_id }} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: {{ block.settings.padding }}px;
+    min-height: {{ block.settings.min_height }}px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .ai-split-banner-left-{{ ai_gen_id }} {
+    width: {{ block.settings.left_width }}%;
+    justify-content: {{ block.settings.left_vertical_align }};
+    align-items: {{ block.settings.left_horizontal_align }};
+  }
+
+  .ai-split-banner-right-{{ ai_gen_id }} {
+    width: {{ block.settings.right_width }}%;
+    justify-content: {{ block.settings.right_vertical_align }};
+    align-items: {{ block.settings.right_horizontal_align }};
+  }
+
+  .ai-split-banner-content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    max-width: 100%;
+  }
+
+  .ai-split-banner-left-{{ ai_gen_id }} .ai-split-banner-content-{{ ai_gen_id }} {
+    text-align: {{ block.settings.left_text_align }};
+  }
+
+  .ai-split-banner-right-{{ ai_gen_id }} .ai-split-banner-content-{{ ai_gen_id }} {
+    text-align: {{ block.settings.right_text_align }};
+  }
+
+  .ai-split-banner-heading-{{ ai_gen_id }} {
+    margin: 0 0 {{ block.settings.heading_margin_bottom }}px 0;
+    color: {{ block.settings.left_text_color }};
+    font-size: {{ block.settings.heading_size }}px;
+    line-height: 1.2;
+  }
+
+  .ai-split-banner-heading-{{ ai_gen_id }} strong {
+    font-weight: 700;
+  }
+
+  .ai-split-banner-heading-{{ ai_gen_id }} em {
+    font-style: italic;
+  }
+
+  .ai-split-banner-subheading-{{ ai_gen_id }} {
+    margin: 0 0 {{ block.settings.subheading_margin_bottom }}px 0;
+    color: {{ block.settings.left_text_color }};
+    font-size: {{ block.settings.subheading_size }}px;
+    line-height: 1.4;
+  }
+
+  .ai-split-banner-cta-{{ ai_gen_id }} {
+    display: inline-block;
+    margin-top: {{ block.settings.cta_margin_top }}px;
+  }
+
+  .ai-split-banner-button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    text-decoration: none;
+    border: {{ block.settings.button_border_width }}px solid {{ block.settings.button_border_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .ai-split-banner-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg_color }};
+    color: {{ block.settings.button_hover_text_color }};
+    border-color: {{ block.settings.button_hover_border_color }};
+  }
+
+  .ai-split-banner-left-{{ ai_gen_id }} .ai-split-banner-link-{{ ai_gen_id }} {
+    color: {{ block.settings.left_link_color }};
+    text-decoration: underline;
+    font-size: {{ block.settings.link_font_size }}px;
+    transition: color 0.3s ease;
+  }
+
+  .ai-split-banner-left-{{ ai_gen_id }} .ai-split-banner-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.left_link_hover_color }};
+  }
+
+  .ai-split-banner-right-{{ ai_gen_id }} .ai-split-banner-link-{{ ai_gen_id }} {
+    color: {{ block.settings.right_link_color }};
+    text-decoration: underline;
+    font-size: {{ block.settings.link_font_size }}px;
+    transition: color 0.3s ease;
+  }
+
+  .ai-split-banner-right-{{ ai_gen_id }} .ai-split-banner-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.right_link_hover_color }};
+  }
+
+  .ai-split-banner-right-heading-{{ ai_gen_id }} {
+    margin: 0 0 {{ block.settings.right_heading_margin_bottom }}px 0;
+    color: {{ block.settings.right_text_color }};
+    font-size: {{ block.settings.right_heading_size }}px;
+    line-height: 1.2;
+  }
+
+  .ai-split-banner-right-heading-{{ ai_gen_id }} strong {
+    font-weight: 700;
+  }
+
+  .ai-split-banner-right-heading-{{ ai_gen_id }} em {
+    font-style: italic;
+  }
+
+  .ai-split-banner-mobile-text-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-split-banner-left-mobile-image-{{ ai_gen_id }},
+  .ai-split-banner-right-mobile-image-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-split-banner-mobile-link-{{ ai_gen_id }} {
+    color: {{ block.settings.mobile_link_color }};
+    text-decoration: underline;
+    font-size: {{ block.settings.link_font_size | times: 0.9 }}px;
+    transition: color 0.3s ease;
+  }
+
+  .ai-split-banner-mobile-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.mobile_link_hover_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-split-banner-container-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: {{ block.settings.mobile_gap }}px;
+    }
+
+    .ai-split-banner-left-{{ ai_gen_id }},
+    .ai-split-banner-right-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    {% if block.settings.left_mobile_image %}
+      .ai-split-banner-left-{{ ai_gen_id }} {
+        background-image: none !important;
+        background-color: transparent !important;
+        padding: 0;
+        min-height: auto;
+      }
+
+      .ai-split-banner-left-mobile-image-{{ ai_gen_id }} {
+        display: block;
+        width: 100%;
+        height: {{ block.settings.left_mobile_aspect_height }}px;
+        background-image: url('{{ block.settings.left_mobile_image | image_url: width: 1000 }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+    {% else %}
+      .ai-split-banner-left-{{ ai_gen_id }} {
+        min-height: {{ block.settings.left_mobile_min_height }}px;
+      }
+    {% endif %}
+
+    {% if block.settings.right_mobile_image %}
+      .ai-split-banner-right-{{ ai_gen_id }} {
+        background-image: none !important;
+        background-color: transparent !important;
+        padding: 0;
+        min-height: auto;
+      }
+
+      .ai-split-banner-right-mobile-image-{{ ai_gen_id }} {
+        display: block;
+        width: 100%;
+        height: {{ block.settings.right_mobile_aspect_height }}px;
+        background-image: url('{{ block.settings.right_mobile_image | image_url: width: 1000 }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+    {% else %}
+      .ai-split-banner-right-{{ ai_gen_id }} {
+        min-height: {{ block.settings.right_mobile_min_height }}px;
+      }
+    {% endif %}
+
+    .ai-split-banner-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+    }
+
+    .ai-split-banner-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subheading_size | times: 0.8 }}px;
+    }
+
+    .ai-split-banner-right-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.right_heading_size | times: 0.7 }}px;
+    }
+
+    {% if block.settings.show_mobile_text_overlay %}
+      .ai-split-banner-content-{{ ai_gen_id }} {
+        display: none;
+      }
+
+      .ai-split-banner-mobile-text-{{ ai_gen_id }} {
+        display: block;
+        padding: {{ block.settings.mobile_text_padding }}px;
+        background-color: {{ block.settings.mobile_text_bg_color }};
+      }
+
+      .ai-split-banner-mobile-heading-{{ ai_gen_id }} {
+        margin: 0 0 {{ block.settings.heading_margin_bottom | times: 0.5 }}px 0;
+        color: {{ block.settings.mobile_text_color }};
+        font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+        line-height: 1.2;
+      }
+
+      .ai-split-banner-mobile-heading-{{ ai_gen_id }} strong {
+        font-weight: 700;
+      }
+
+      .ai-split-banner-mobile-heading-{{ ai_gen_id }} em {
+        font-style: italic;
+      }
+
+      .ai-split-banner-mobile-subheading-{{ ai_gen_id }} {
+        margin: 0 0 {{ block.settings.subheading_margin_bottom | times: 0.5 }}px 0;
+        color: {{ block.settings.mobile_text_color }};
+        font-size: {{ block.settings.subheading_size | times: 0.8 }}px;
+        line-height: 1.4;
+      }
+
+      .ai-split-banner-mobile-cta-{{ ai_gen_id }} {
+        display: inline-block;
+        margin-top: {{ block.settings.cta_margin_top | times: 0.5 }}px;
+      }
+    {% endif %}
+  }
+{% endstyle %}
+
+<div class="ai-split-banner-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-split-banner-container-{{ ai_gen_id }}">
+    <div 
+      class="ai-split-banner-side-{{ ai_gen_id }} ai-split-banner-left-{{ ai_gen_id }}"
+      {% if block.settings.left_bg_image %}
+        style="background-image: url('{{ block.settings.left_bg_image | image_url: width: 2000 }}');"
+      {% else %}
+        style="background-color: {{ block.settings.left_bg_color }};"
+      {% endif %}
+    >
+      <div class="ai-split-banner-left-mobile-image-{{ ai_gen_id }}"></div>
+      
+      <div class="ai-split-banner-content-{{ ai_gen_id }}">
+        {% if block.settings.left_heading != blank %}
+          <h2 class="ai-split-banner-heading-{{ ai_gen_id }}">
+            {{ block.settings.left_heading }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.left_subheading != blank %}
+          <div class="ai-split-banner-subheading-{{ ai_gen_id }}">
+            {{ block.settings.left_subheading }}
+          </div>
+        {% endif %}
+
+        {% if block.settings.left_cta_text != blank and block.settings.left_cta_link != blank %}
+          <div class="ai-split-banner-cta-{{ ai_gen_id }}">
+            {% if block.settings.left_cta_style == 'button' %}
+              <a href="{{ block.settings.left_cta_link }}" class="ai-split-banner-button-{{ ai_gen_id }}">
+                {{ block.settings.left_cta_text }}
+              </a>
+            {% else %}
+              <a href="{{ block.settings.left_cta_link }}" class="ai-split-banner-link-{{ ai_gen_id }}">
+                {{ block.settings.left_cta_text }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if block.settings.show_mobile_text_overlay %}
+      <div class="ai-split-banner-mobile-text-{{ ai_gen_id }}">
+        {% if block.settings.left_heading != blank %}
+          <h2 class="ai-split-banner-mobile-heading-{{ ai_gen_id }}">
+            {{ block.settings.left_heading }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.left_subheading != blank %}
+          <div class="ai-split-banner-mobile-subheading-{{ ai_gen_id }}">
+            {{ block.settings.left_subheading }}
+          </div>
+        {% endif %}
+
+        {% if block.settings.left_cta_text != blank and block.settings.left_cta_link != blank %}
+          <div class="ai-split-banner-mobile-cta-{{ ai_gen_id }}">
+            {% if block.settings.left_cta_style == 'button' %}
+              <a href="{{ block.settings.left_cta_link }}" class="ai-split-banner-button-{{ ai_gen_id }}">
+                {{ block.settings.left_cta_text }}
+              </a>
+            {% else %}
+              <a href="{{ block.settings.left_cta_link }}" class="ai-split-banner-mobile-link-{{ ai_gen_id }}">
+                {{ block.settings.left_cta_text }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div 
+      class="ai-split-banner-side-{{ ai_gen_id }} ai-split-banner-right-{{ ai_gen_id }}"
+      {% if block.settings.right_bg_image %}
+        style="background-image: url('{{ block.settings.right_bg_image | image_url: width: 2000 }}');"
+      {% else %}
+        style="background-color: {{ block.settings.right_bg_color }};"
+      {% endif %}
+    >
+      <div class="ai-split-banner-right-mobile-image-{{ ai_gen_id }}"></div>
+      
+      <div class="ai-split-banner-content-{{ ai_gen_id }}">
+        {% if block.settings.right_heading != blank %}
+          <h2 class="ai-split-banner-right-heading-{{ ai_gen_id }}">
+            {{ block.settings.right_heading }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.right_cta_text != blank and block.settings.right_cta_link != blank %}
+          <div class="ai-split-banner-cta-{{ ai_gen_id }}">
+            {% if block.settings.right_cta_style == 'button' %}
+              <a href="{{ block.settings.right_cta_link }}" class="ai-split-banner-button-{{ ai_gen_id }}">
+                {{ block.settings.right_cta_text }}
+              </a>
+            {% else %}
+              <a href="{{ block.settings.right_cta_link }}" class="ai-split-banner-link-{{ ai_gen_id }}">
+                {{ block.settings.right_cta_text }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if block.settings.show_mobile_text_overlay %}
+      <div class="ai-split-banner-mobile-text-{{ ai_gen_id }}">
+        {% if block.settings.right_heading != blank %}
+          <h2 class="ai-split-banner-mobile-heading-{{ ai_gen_id }}">
+            {{ block.settings.right_heading }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.right_cta_text != blank and block.settings.right_cta_link != blank %}
+          <div class="ai-split-banner-mobile-cta-{{ ai_gen_id }}">
+            {% if block.settings.right_cta_style == 'button' %}
+              <a href="{{ block.settings.right_cta_link }}" class="ai-split-banner-button-{{ ai_gen_id }}">
+                {{ block.settings.right_cta_text }}
+              </a>
+            {% else %}
+              <a href="{{ block.settings.right_cta_link }}" class="ai-split-banner-mobile-link-{{ ai_gen_id }}">
+                {{ block.settings.right_cta_text }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Split banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "left_width",
+      "label": "Left banner width",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "right_width",
+      "label": "Right banner width",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "desktop_gap",
+      "label": "Desktop spacing",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Mobile spacing",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Desktop minimum height",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Content padding",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Left banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_bg_image",
+      "label": "Desktop background image"
+    },
+    {
+      "type": "color",
+      "id": "left_bg_color",
+      "label": "Background color",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "richtext",
+      "id": "left_heading",
+      "label": "Heading",
+      "default": "<p><strong>Bold</strong> and <em>italic</em> text</p>"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "heading_margin_bottom",
+      "label": "Heading bottom spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "richtext",
+      "id": "left_subheading",
+      "label": "Subheading",
+      "default": "<p>Add your subheading text here</p>"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheading_margin_bottom",
+      "label": "Subheading bottom spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "left_text_color",
+      "label": "Text color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "header",
+      "content": "Left banner position"
+    },
+    {
+      "type": "select",
+      "id": "left_vertical_align",
+      "label": "Vertical alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "left_horizontal_align",
+      "label": "Horizontal alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "select",
+      "id": "left_text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Left banner mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "range",
+      "id": "left_mobile_aspect_height",
+      "label": "Mobile image height",
+      "min": 150,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "left_mobile_min_height",
+      "label": "Mobile minimum height",
+      "min": 150,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "default": 300,
+      "info": "Used when no mobile image is set"
+    },
+    {
+      "type": "header",
+      "content": "Left banner CTA"
+    },
+    {
+      "type": "text",
+      "id": "left_cta_text",
+      "label": "CTA text",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "left_cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "select",
+      "id": "left_cta_style",
+      "label": "CTA style",
+      "options": [
+        {
+          "value": "button",
+          "label": "Button"
+        },
+        {
+          "value": "link",
+          "label": "Link"
+        }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "range",
+      "id": "cta_margin_top",
+      "label": "CTA top spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "left_link_color",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "left_link_hover_color",
+      "label": "Link hover color",
+      "default": "#4c4545"
+    },
+    {
+      "type": "header",
+      "content": "Right banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_bg_image",
+      "label": "Desktop background image"
+    },
+    {
+      "type": "color",
+      "id": "right_bg_color",
+      "label": "Background color",
+      "default": "#e7d1cc"
+    },
+    {
+      "type": "richtext",
+      "id": "right_heading",
+      "label": "Heading",
+      "default": "<p><strong>Right</strong> banner <em>heading</em></p>"
+    },
+    {
+      "type": "range",
+      "id": "right_heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "right_heading_margin_bottom",
+      "label": "Heading bottom spacing",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "right_text_color",
+      "label": "Text color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "header",
+      "content": "Right banner position"
+    },
+    {
+      "type": "select",
+      "id": "right_vertical_align",
+      "label": "Vertical alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "right_horizontal_align",
+      "label": "Horizontal alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "select",
+      "id": "right_text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Right banner mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "range",
+      "id": "right_mobile_aspect_height",
+      "label": "Mobile image height",
+      "min": 150,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "right_mobile_min_height",
+      "label": "Mobile minimum height",
+      "min": 150,
+      "max": 600,
+      "step": 50,
+      "unit": "px",
+      "default": 300,
+      "info": "Used when no mobile image is set"
+    },
+    {
+      "type": "header",
+      "content": "Right banner CTA"
+    },
+    {
+      "type": "text",
+      "id": "right_cta_text",
+      "label": "CTA text",
+      "default": "Learn more"
+    },
+    {
+      "type": "url",
+      "id": "right_cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "select",
+      "id": "right_cta_style",
+      "label": "CTA style",
+      "options": [
+        {
+          "value": "button",
+          "label": "Button"
+        },
+        {
+          "value": "link",
+          "label": "Link"
+        }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "color",
+      "id": "right_link_color",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "right_link_hover_color",
+      "label": "Link hover color",
+      "default": "#4c4545"
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Hover background",
+      "default": "#4c4545"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "label": "Hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Border",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_border_color",
+      "label": "Hover border",
+      "default": "#4c4545"
+    },
+    {
+      "type": "range",
+      "id": "button_border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "label": "Vertical padding",
+      "min": 5,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Link style"
+    },
+    {
+      "type": "range",
+      "id": "link_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Mobile settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mobile_text_overlay",
+      "label": "Show text below banners on mobile",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "mobile_text_bg_color",
+      "label": "Mobile text background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "mobile_text_color",
+      "label": "Mobile text color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_padding",
+      "label": "Mobile text padding",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "mobile_link_color",
+      "label": "Mobile link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "mobile_link_hover_color",
+      "label": "Mobile link hover color",
+      "default": "#4c4545"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split banner"
+    }
+  ]
+}
+{% endschema %}

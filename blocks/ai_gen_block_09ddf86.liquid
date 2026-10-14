@@ -1,0 +1,361 @@
+{% doc %}
+  @prompt
+    create a hero banner block that allows a picture background and text that is in two colours like this image, can we put the heading all on one line and make sure i can change the font, alignment, padding and size of the text, allow banner height to be adjusted 
+{% enddoc %}
+{% comment %}
+  Hero Banner Block with Two-Color Text
+  Allows customizable background image and split-color heading
+{% endcomment %}
+
+{% style %}
+  #hero-banner-{{ block.id }} {
+    position: relative;
+    min-height: {{ block.settings.banner_height }}px;
+    {% if block.settings.use_max_height %}
+      max-height: {{ block.settings.max_height }}px;
+    {% endif %}
+    background-image: url('{{ block.settings.background_image | img_url: '2000x' }}');
+    background-size: cover;
+    background-position: {{ block.settings.image_position }};
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: {{ block.settings.vertical_alignment }};
+    justify-content: {{ block.settings.text_alignment }};
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_right }}px {{ block.settings.padding_bottom }}px {{ block.settings.padding_left }}px;
+    overflow: hidden;
+  }
+
+  #hero-banner-{{ block.id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: {{ block.settings.overlay_color }};
+    opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};
+    pointer-events: none;
+  }
+
+  #hero-banner-{{ block.id }} .hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: {{ block.settings.text_alignment }};
+  }
+
+  #hero-banner-{{ block.id }} .hero-heading {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-style: {{ block.settings.heading_font.style }};
+    font-size: {{ block.settings.heading_size }}px;
+    letter-spacing: {{ block.settings.letter_spacing | times: 0.01 }}em;
+    line-height: 1.2;
+    margin: 0;
+    white-space: nowrap;
+    {% if block.settings.uppercase %}text-transform: uppercase;{% endif %}
+  }
+
+  #hero-banner-{{ block.id }} .hero-heading .part1 {
+    color: {{ block.settings.heading_color1 }};
+  }
+
+  #hero-banner-{{ block.id }} .hero-heading .part2 {
+    color: {{ block.settings.heading_color2 }};
+  }
+
+  @media screen and (max-width: 768px) {
+    #hero-banner-{{ block.id }} {
+      min-height: {{ block.settings.mobile_height }}px;
+      {% if block.settings.use_max_height %}
+        max-height: {{ block.settings.mobile_max_height }}px;
+      {% endif %}
+      padding: {{ block.settings.padding_top | times: 0.6 }}px {{ block.settings.padding_right | times: 0.6 }}px {{ block.settings.padding_bottom | times: 0.6 }}px {{ block.settings.padding_left | times: 0.6 }}px;
+    }
+
+    #hero-banner-{{ block.id }} .hero-heading {
+      font-size: {{ block.settings.heading_size | times: 0.5 }}px;
+      white-space: normal;
+    }
+  }
+{% endstyle %}
+
+{{ block.settings.heading_font | font_face: font_display: 'swap' }}
+
+<div id="hero-banner-{{ block.id }}" class="hero-banner-block" {{ block.shopify_attributes }}>
+  <div class="hero-content">
+    {% if block.settings.heading_part1 != blank or block.settings.heading_part2 != blank %}
+      <h1 class="hero-heading">
+        {% if block.settings.heading_part1 != blank %}
+          <span class="part1">{{ block.settings.heading_part1 }}</span>
+        {% endif %}
+        {% if block.settings.heading_part2 != blank %}
+          <span class="part2">{{ block.settings.heading_part2 }}</span>
+        {% endif %}
+      </h1>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Hero Two-Color Text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Position",
+      "options": [
+        {
+          "value": "center center",
+          "label": "Center"
+        },
+        {
+          "value": "top center",
+          "label": "Top"
+        },
+        {
+          "value": "bottom center",
+          "label": "Bottom"
+        },
+        {
+          "value": "left center",
+          "label": "Left"
+        },
+        {
+          "value": "right center",
+          "label": "Right"
+        }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "header",
+      "content": "Banner Height"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "min": 200,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Desktop Height",
+      "default": 500
+    },
+    {
+      "type": "checkbox",
+      "id": "use_max_height",
+      "label": "Set maximum height",
+      "default": false,
+      "info": "Prevents banner from growing beyond max height"
+    },
+    {
+      "type": "range",
+      "id": "max_height",
+      "min": 300,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "label": "Desktop Max Height",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "min": 150,
+      "max": 600,
+      "step": 25,
+      "unit": "px",
+      "label": "Mobile Height",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "mobile_max_height",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Mobile Max Height",
+      "default": 500
+    },
+    {
+      "type": "header",
+      "content": "Heading Text"
+    },
+    {
+      "type": "text",
+      "id": "heading_part1",
+      "label": "First Part of Heading",
+      "default": "Welcome to"
+    },
+    {
+      "type": "color",
+      "id": "heading_color1",
+      "label": "First Part Color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "text",
+      "id": "heading_part2",
+      "label": "Second Part of Heading",
+      "default": "Our Store"
+    },
+    {
+      "type": "color",
+      "id": "heading_color2",
+      "label": "Second Part Color",
+      "default": "#bf1717"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading Font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Size",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -50,
+      "max": 200,
+      "step": 5,
+      "label": "Letter Spacing",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "uppercase",
+      "label": "Uppercase",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "Vertical Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Middle"
+        },
+        {
+          "value": "flex-end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Left",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Right",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Overlay Opacity",
+      "default": 30
+    }
+  ]
+}
+{% endschema %}

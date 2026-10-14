@@ -1,0 +1,888 @@
+{% doc %}
+  @prompt
+    create a split banner block which allows the left banner to change the text font to match this image and have a subheading and cta with either a button or link, allow image as background on left banner, allow to change the size of the left and right banner widths with toggle, allow heading text to be bold, italic , allow part of the heading to be bold and part to be italic, allow for spacing between the left and right banner, allow for heading and CTA link on the right banner, allow for mobile gap between left and right banner, show text overlay under the banners on mobile only, show left banner text under left banner and right banner text under right banner for mobile version, allow text to change to be on the left side of the left banner, ensure mobile overlay text sits under correct banner eg. left banner text under left banner, put left banner text directly below the left banner on mobile, add background image to right banner, allow the text position to change via toggle on the left banner, allow the full height of the image to be show on the banners in mobile version, allow text on right banner to change position and alignment via toggle, allow different alignment and positioning of text from desktop and mobile for each banner, allow different mobile aspect ratio for left and right mobile banners, ensure the banner text sits under the correct banner e.g. left text under left banner, allow desktop minimum banner height to be set, make sure the left and right banners together fill the width of the desktop, make sure the banner text sits under the correct banner e.g. left text under left banner, change the minimum desktop height to 500, left banner text to sit under the left banner on mobile, allow banners to show as page width on mobile, mobile banners to be full width, no white space to the right of the banner images on mobile please, allow different left and right banner widths for desktop and mobile, allow the left banner to stack ontop of the right banner on mobile, allow to change the mobile banners width 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-split-banner-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-split-banner-container-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.desktop_gap }}px;
+    width: 100%;
+  }
+
+  .ai-split-banner-item-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+  }
+
+  .ai-split-banner-left-{{ ai_gen_id }} {
+    width: {{ block.settings.left_width_desktop }}%;
+  }
+
+  .ai-split-banner-right-{{ ai_gen_id }} {
+    width: {{ block.settings.right_width_desktop }}%;
+  }
+
+  .ai-split-banner-bg-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .ai-split-banner-placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+  }
+
+  .ai-split-banner-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .ai-split-banner-content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 1;
+    padding: 40px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-split-banner-content-left-{{ ai_gen_id }} {
+    align-items: {{ block.settings.left_text_align_desktop }};
+    justify-content: {{ block.settings.left_text_position_desktop }};
+    text-align: {{ block.settings.left_text_align_desktop }};
+  }
+
+  .ai-split-banner-content-right-{{ ai_gen_id }} {
+    align-items: {{ block.settings.right_text_align_desktop }};
+    justify-content: {{ block.settings.right_text_position_desktop }};
+    text-align: {{ block.settings.right_text_align_desktop }};
+  }
+
+  .ai-split-banner-heading-{{ ai_gen_id }} {
+    margin: 0 0 16px;
+    color: {{ block.settings.left_heading_color }};
+    font-size: {{ block.settings.left_heading_size }}px;
+    line-height: 1.2;
+  }
+
+  .ai-split-banner-heading-{{ ai_gen_id }} .bold {
+    font-weight: bold;
+  }
+
+  .ai-split-banner-heading-{{ ai_gen_id }} .italic {
+    font-style: italic;
+  }
+
+  .ai-split-banner-subheading-{{ ai_gen_id }} {
+    margin: 0 0 24px;
+    color: {{ block.settings.left_subheading_color }};
+    font-size: {{ block.settings.left_subheading_size }}px;
+    line-height: 1.4;
+  }
+
+  .ai-split-banner-heading-right-{{ ai_gen_id }} {
+    margin: 0 0 24px;
+    color: {{ block.settings.right_heading_color }};
+    font-size: {{ block.settings.right_heading_size }}px;
+    line-height: 1.2;
+  }
+
+  .ai-split-banner-heading-right-{{ ai_gen_id }} .bold {
+    font-weight: bold;
+  }
+
+  .ai-split-banner-heading-right-{{ ai_gen_id }} .italic {
+    font-style: italic;
+  }
+
+  .ai-split-banner-cta-{{ ai_gen_id }} {
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .ai-split-banner-button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 14px 32px;
+    background-color: {{ block.settings.left_button_bg }};
+    color: {{ block.settings.left_button_text }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    {% if block.settings.uppercase_buttons %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  .ai-split-banner-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.left_button_bg_hover }};
+    color: {{ block.settings.left_button_text_hover }};
+  }
+
+  .ai-split-banner-link-{{ ai_gen_id }} {
+    color: {{ block.settings.left_link_color }};
+    text-decoration: underline;
+    font-size: 16px;
+  }
+
+  .ai-split-banner-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.left_link_color_hover }};
+  }
+
+  .ai-split-banner-button-right-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 14px 32px;
+    background-color: {{ block.settings.right_button_bg }};
+    color: {{ block.settings.right_button_text }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    {% if block.settings.uppercase_buttons %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  .ai-split-banner-button-right-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.right_button_bg_hover }};
+    color: {{ block.settings.right_button_text_hover }};
+  }
+
+  .ai-split-banner-link-right-{{ ai_gen_id }} {
+    color: {{ block.settings.right_link_color }};
+    text-decoration: underline;
+    font-size: 16px;
+  }
+
+  .ai-split-banner-link-right-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.right_link_color_hover }};
+  }
+
+  .ai-split-banner-mobile-wrapper-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-split-banner-container-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-split-banner-mobile-wrapper-{{ ai_gen_id }} {
+      display: flex;
+      flex-direction: column;
+      gap: {{ block.settings.mobile_gap }}px;
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+    }
+
+    .ai-split-banner-mobile-column-{{ ai_gen_id }} {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .ai-split-banner-mobile-image-{{ ai_gen_id }} {
+      width: 100%;
+      display: block;
+    }
+
+    .ai-split-banner-mobile-image-left-{{ ai_gen_id }} {
+      width: {{ block.settings.left_width_mobile }}%;
+      margin: 0 auto;
+    }
+
+    .ai-split-banner-mobile-image-right-{{ ai_gen_id }} {
+      width: {{ block.settings.right_width_mobile }}%;
+      margin: 0 auto;
+    }
+
+    .ai-split-banner-mobile-image-{{ ai_gen_id }} img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .ai-split-banner-left-{{ ai_gen_id }} .ai-split-banner-mobile-image-{{ ai_gen_id }} img {
+      aspect-ratio: {{ block.settings.left_mobile_aspect_ratio }};
+      object-fit: cover;
+    }
+
+    .ai-split-banner-right-{{ ai_gen_id }} .ai-split-banner-mobile-image-{{ ai_gen_id }} img {
+      aspect-ratio: {{ block.settings.right_mobile_aspect_ratio }};
+      object-fit: cover;
+    }
+
+    .ai-split-banner-mobile-placeholder-{{ ai_gen_id }} {
+      width: 100%;
+      background-color: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-split-banner-left-{{ ai_gen_id }} .ai-split-banner-mobile-placeholder-{{ ai_gen_id }} {
+      aspect-ratio: {{ block.settings.left_mobile_aspect_ratio }};
+    }
+
+    .ai-split-banner-right-{{ ai_gen_id }} .ai-split-banner-mobile-placeholder-{{ ai_gen_id }} {
+      aspect-ratio: {{ block.settings.right_mobile_aspect_ratio }};
+    }
+
+    .ai-split-banner-mobile-placeholder-{{ ai_gen_id }} svg {
+      width: 100%;
+      height: 100%;
+      max-width: 200px;
+      max-height: 200px;
+    }
+
+    .ai-split-banner-mobile-text-{{ ai_gen_id }} {
+      padding: 20px;
+    }
+
+    .ai-split-banner-mobile-text-left-{{ ai_gen_id }} {
+      text-align: {{ block.settings.left_text_align_mobile }};
+      width: {{ block.settings.left_width_mobile }}%;
+      margin: 0 auto;
+    }
+
+    .ai-split-banner-mobile-text-right-{{ ai_gen_id }} {
+      text-align: {{ block.settings.right_text_align_mobile }};
+      width: {{ block.settings.right_width_mobile }}%;
+      margin: 0 auto;
+    }
+
+    .ai-split-banner-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.left_heading_size | times: 0.8 }}px;
+    }
+
+    .ai-split-banner-subheading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.left_subheading_size | times: 0.9 }}px;
+    }
+
+    .ai-split-banner-heading-right-{{ ai_gen_id }} {
+      font-size: {{ block.settings.right_heading_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-split-banner-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-split-banner-container-{{ ai_gen_id }}">
+    <div class="ai-split-banner-item-{{ ai_gen_id }} ai-split-banner-left-{{ ai_gen_id }}">
+      {% if block.settings.left_bg_image %}
+        <img
+          src="{{ block.settings.left_bg_image | image_url: width: 2000 }}"
+          alt="{{ block.settings.left_bg_image.alt | escape }}"
+          class="ai-split-banner-bg-{{ ai_gen_id }}"
+          loading="lazy"
+          width="{{ block.settings.left_bg_image.width }}"
+          height="{{ block.settings.left_bg_image.height }}"
+        >
+      {% else %}
+        <div class="ai-split-banner-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+
+      <div class="ai-split-banner-content-{{ ai_gen_id }} ai-split-banner-content-left-{{ ai_gen_id }}">
+        {% if block.settings.left_heading != blank %}
+          <h2 class="ai-split-banner-heading-{{ ai_gen_id }}">
+            {{ block.settings.left_heading }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.left_subheading != blank %}
+          <div class="ai-split-banner-subheading-{{ ai_gen_id }}">
+            {{ block.settings.left_subheading }}
+          </div>
+        {% endif %}
+
+        {% if block.settings.left_cta_text != blank and block.settings.left_cta_url != blank %}
+          {% if block.settings.left_cta_style == 'button' %}
+            <a href="{{ block.settings.left_cta_url }}" class="ai-split-banner-button-{{ ai_gen_id }}">
+              {{ block.settings.left_cta_text }}
+            </a>
+          {% else %}
+            <a href="{{ block.settings.left_cta_url }}" class="ai-split-banner-link-{{ ai_gen_id }}">
+              {{ block.settings.left_cta_text }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ai-split-banner-item-{{ ai_gen_id }} ai-split-banner-right-{{ ai_gen_id }}">
+      {% if block.settings.right_bg_image %}
+        <img
+          src="{{ block.settings.right_bg_image | image_url: width: 2000 }}"
+          alt="{{ block.settings.right_bg_image.alt | escape }}"
+          class="ai-split-banner-bg-{{ ai_gen_id }}"
+          loading="lazy"
+          width="{{ block.settings.right_bg_image.width }}"
+          height="{{ block.settings.right_bg_image.height }}"
+        >
+      {% else %}
+        <div class="ai-split-banner-placeholder-{{ ai_gen_id }}">
+          {{ 'image' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+
+      <div class="ai-split-banner-content-{{ ai_gen_id }} ai-split-banner-content-right-{{ ai_gen_id }}">
+        {% if block.settings.right_heading != blank %}
+          <h2 class="ai-split-banner-heading-right-{{ ai_gen_id }}">
+            {{ block.settings.right_heading }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.right_cta_text != blank and block.settings.right_cta_url != blank %}
+          {% if block.settings.right_cta_style == 'button' %}
+            <a href="{{ block.settings.right_cta_url }}" class="ai-split-banner-button-right-{{ ai_gen_id }}">
+              {{ block.settings.right_cta_text }}
+            </a>
+          {% else %}
+            <a href="{{ block.settings.right_cta_url }}" class="ai-split-banner-link-right-{{ ai_gen_id }}">
+              {{ block.settings.right_cta_text }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-split-banner-mobile-wrapper-{{ ai_gen_id }}">
+    <div class="ai-split-banner-mobile-column-{{ ai_gen_id }}">
+      <div class="ai-split-banner-left-{{ ai_gen_id }}">
+        <div class="ai-split-banner-mobile-image-{{ ai_gen_id }} ai-split-banner-mobile-image-left-{{ ai_gen_id }}">
+          {% if block.settings.left_bg_image %}
+            <img
+              src="{{ block.settings.left_bg_image | image_url: width: 1000 }}"
+              alt="{{ block.settings.left_bg_image.alt | escape }}"
+              loading="lazy"
+              width="{{ block.settings.left_bg_image.width }}"
+              height="{{ block.settings.left_bg_image.height }}"
+            >
+          {% else %}
+            <div class="ai-split-banner-mobile-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="ai-split-banner-mobile-text-{{ ai_gen_id }} ai-split-banner-mobile-text-left-{{ ai_gen_id }}">
+          {% if block.settings.left_heading != blank %}
+            <h2 class="ai-split-banner-heading-{{ ai_gen_id }}">
+              {{ block.settings.left_heading }}
+            </h2>
+          {% endif %}
+
+          {% if block.settings.left_subheading != blank %}
+            <div class="ai-split-banner-subheading-{{ ai_gen_id }}">
+              {{ block.settings.left_subheading }}
+            </div>
+          {% endif %}
+
+          {% if block.settings.left_cta_text != blank and block.settings.left_cta_url != blank %}
+            {% if block.settings.left_cta_style == 'button' %}
+              <a href="{{ block.settings.left_cta_url }}" class="ai-split-banner-button-{{ ai_gen_id }}">
+                {{ block.settings.left_cta_text }}
+              </a>
+            {% else %}
+              <a href="{{ block.settings.left_cta_url }}" class="ai-split-banner-link-{{ ai_gen_id }}">
+                {{ block.settings.left_cta_text }}
+              </a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-split-banner-mobile-column-{{ ai_gen_id }}">
+      <div class="ai-split-banner-right-{{ ai_gen_id }}">
+        <div class="ai-split-banner-mobile-image-{{ ai_gen_id }} ai-split-banner-mobile-image-right-{{ ai_gen_id }}">
+          {% if block.settings.right_bg_image %}
+            <img
+              src="{{ block.settings.right_bg_image | image_url: width: 1000 }}"
+              alt="{{ block.settings.right_bg_image.alt | escape }}"
+              loading="lazy"
+              width="{{ block.settings.right_bg_image.width }}"
+              height="{{ block.settings.right_bg_image.height }}"
+            >
+          {% else %}
+            <div class="ai-split-banner-mobile-placeholder-{{ ai_gen_id }}">
+              {{ 'image' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="ai-split-banner-mobile-text-{{ ai_gen_id }} ai-split-banner-mobile-text-right-{{ ai_gen_id }}">
+          {% if block.settings.right_heading != blank %}
+            <h2 class="ai-split-banner-heading-right-{{ ai_gen_id }}">
+              {{ block.settings.right_heading }}
+            </h2>
+          {% endif %}
+
+          {% if block.settings.right_cta_text != blank and block.settings.right_cta_url != blank %}
+            {% if block.settings.right_cta_style == 'button' %}
+              <a href="{{ block.settings.right_cta_url }}" class="ai-split-banner-button-right-{{ ai_gen_id }}">
+                {{ block.settings.right_cta_text }}
+              </a>
+            {% else %}
+              <a href="{{ block.settings.right_cta_url }}" class="ai-split-banner-link-right-{{ ai_gen_id }}">
+                {{ block.settings.right_cta_text }}
+              </a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Split banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "left_width_desktop",
+      "label": "Left banner width",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "right_width_desktop",
+      "label": "Right banner width",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "desktop_gap",
+      "label": "Gap between banners",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "range",
+      "id": "left_width_mobile",
+      "label": "Left banner width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "right_width_mobile",
+      "label": "Right banner width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Gap between banners",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Left banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_bg_image",
+      "label": "Background image"
+    },
+    {
+      "type": "select",
+      "id": "left_mobile_aspect_ratio",
+      "label": "Mobile aspect ratio",
+      "options": [
+        { "value": "1/1", "label": "Square (1:1)" },
+        { "value": "4/3", "label": "Landscape (4:3)" },
+        { "value": "16/9", "label": "Wide (16:9)" },
+        { "value": "3/4", "label": "Portrait (3:4)" },
+        { "value": "2/3", "label": "Tall (2:3)" }
+      ],
+      "default": "4/3"
+    },
+    {
+      "type": "richtext",
+      "id": "left_heading",
+      "label": "Heading",
+      "default": "<p>Left banner <strong>heading</strong></p>"
+    },
+    {
+      "type": "range",
+      "id": "left_heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "color",
+      "id": "left_heading_color",
+      "label": "Heading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "richtext",
+      "id": "left_subheading",
+      "label": "Subheading",
+      "default": "<p>Add your subheading text here</p>"
+    },
+    {
+      "type": "range",
+      "id": "left_subheading_size",
+      "label": "Subheading size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "left_subheading_color",
+      "label": "Subheading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "text",
+      "id": "left_cta_text",
+      "label": "CTA text",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "left_cta_url",
+      "label": "CTA link"
+    },
+    {
+      "type": "select",
+      "id": "left_cta_style",
+      "label": "CTA style",
+      "options": [
+        { "value": "button", "label": "Button" },
+        { "value": "link", "label": "Link" }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "header",
+      "content": "Left banner desktop position"
+    },
+    {
+      "type": "select",
+      "id": "left_text_position_desktop",
+      "label": "Vertical position",
+      "options": [
+        { "value": "flex-start", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "left_text_align_desktop",
+      "label": "Horizontal alignment",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Left banner mobile position"
+    },
+    {
+      "type": "select",
+      "id": "left_text_align_mobile",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Left banner button style"
+    },
+    {
+      "type": "color",
+      "id": "left_button_bg",
+      "label": "Button background",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "left_button_text",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "left_button_bg_hover",
+      "label": "Button hover background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "left_button_text_hover",
+      "label": "Button hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "left_link_color",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "left_link_color_hover",
+      "label": "Link hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Right banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_bg_image",
+      "label": "Background image"
+    },
+    {
+      "type": "select",
+      "id": "right_mobile_aspect_ratio",
+      "label": "Mobile aspect ratio",
+      "options": [
+        { "value": "1/1", "label": "Square (1:1)" },
+        { "value": "4/3", "label": "Landscape (4:3)" },
+        { "value": "16/9", "label": "Wide (16:9)" },
+        { "value": "3/4", "label": "Portrait (3:4)" },
+        { "value": "2/3", "label": "Tall (2:3)" }
+      ],
+      "default": "4/3"
+    },
+    {
+      "type": "richtext",
+      "id": "right_heading",
+      "label": "Heading",
+      "default": "<p>Right banner <em>heading</em></p>"
+    },
+    {
+      "type": "range",
+      "id": "right_heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "color",
+      "id": "right_heading_color",
+      "label": "Heading color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "text",
+      "id": "right_cta_text",
+      "label": "CTA text",
+      "default": "Discover more"
+    },
+    {
+      "type": "url",
+      "id": "right_cta_url",
+      "label": "CTA link"
+    },
+    {
+      "type": "select",
+      "id": "right_cta_style",
+      "label": "CTA style",
+      "options": [
+        { "value": "button", "label": "Button" },
+        { "value": "link", "label": "Link" }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "header",
+      "content": "Right banner desktop position"
+    },
+    {
+      "type": "select",
+      "id": "right_text_position_desktop",
+      "label": "Vertical position",
+      "options": [
+        { "value": "flex-start", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "right_text_align_desktop",
+      "label": "Horizontal alignment",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Right banner mobile position"
+    },
+    {
+      "type": "select",
+      "id": "right_text_align_mobile",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Right banner button style"
+    },
+    {
+      "type": "color",
+      "id": "right_button_bg",
+      "label": "Button background",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "right_button_text",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "right_button_bg_hover",
+      "label": "Button hover background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "right_button_text_hover",
+      "label": "Button hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "right_link_color",
+      "label": "Link color",
+      "default": "#0e0e0e"
+    },
+    {
+      "type": "color",
+      "id": "right_link_color_hover",
+      "label": "Link hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Button settings"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "uppercase_buttons",
+      "label": "Uppercase button text",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split banner"
+    }
+  ]
+}
+{% endschema %}
