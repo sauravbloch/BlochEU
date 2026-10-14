@@ -21,7 +21,7 @@
       <div class="product-layout-grid product-layout-grid--{{ section.settings.media_size }}">
         <div class="product-layout-grid__images layout--{{ section.settings.media_layout }}{% if product.media.size > 1 %} has-multiple-images{% endif %}" data-product-image-layout="{{ section.settings.media_layout | split: '-' | first }}">
           <div class="product-layout-grid__images-and-thumbs {% if section.settings.enable_sticky_media %} sticky-element{% endif %}">
-            <div class="product-detail__images-container">
+            <div class="product-detail__images-container relative">
               {% if product.media.size > 0 %}
                 <div class="product-detail__images" data-featured-media-id="{{ featured_media.id }}">
                   {% for media in product.media %}
@@ -72,6 +72,8 @@
                 <div class="slick-arrows"></div>
                 <div class="slick-dots"></div>
               </div>
+
+              {% render 'product-badge', product: product %}
             </div>
 
             {% if section.settings.media_layout contains 'thumbnails' and product.media.size > 1 %}
@@ -117,11 +119,12 @@
       {% endif %}</h1>                    
  
                     
-  {% if product.metafields.descriptors.subtitle != blank %}
-    <h2 class="product-detail__subtitle">
-      {{ product.metafields.descriptors.subtitle }}
-    </h2>
-  {%- endif -%}                    
+                    {%- comment -%}Setting key keeps historical ID for backwards compatibility.{%- endcomment -%}
+                    {% if product.metafields.descriptors.subtitle != blank and settings.show_legacy_subtitle_pdp %}
+                    <h2 class="product-detail__subtitle">
+                      {{ product.metafields.descriptors.subtitle }}
+                    </h2>
+                    {%- endif -%}                    
 
                     <div class="product-detail__price product-price" data-price-wrapper>
                       <span class="{% if current_variant.compare_at_price > current_variant.price %}product-price__reduced{% endif %}" data-product-price data-product-detail-price>
@@ -247,21 +250,122 @@
 
 <!-- RELATED PRODUCT SWATCHES - start -->
 <div class="related-swatches">
-  {% for tag in product.tags %}
-    {% if tag contains '@' %}
-      {% style %}
-        fieldset.option-selector[data-index="option1"]{
-        display: none;
-        }
+  {%- liquid
+    assign use_metaobject_related_products = false
+    assign related_color_count = 0
+    assign related_color_handles_string = ''
+    assign color_group_ref = product.metafields.custom.color_group
+    assign color_group_products = blank
+    if color_group_ref != blank and color_group_ref.value != blank and color_group_ref.value.products != blank
+      assign cg_products_references = color_group_ref.value.products.references
+      if cg_products_references != blank
+        assign cg_ref_first = cg_products_references | first
+        if cg_ref_first != blank and cg_ref_first.handle != blank
+          assign color_group_products = cg_products_references
+        endif
+      endif
+    endif
+    if color_group_products == blank and color_group_ref != blank and color_group_ref.value != blank and color_group_ref.value.products != blank
+      assign cg_products_drop = color_group_ref.value.products
+      assign cg_products_value = color_group_ref.value.products.value | default: color_group_ref.value.products
+      assign cg_first_drop = cg_products_drop | first
+      if cg_first_drop != blank and cg_first_drop.handle != blank
+        assign color_group_products = cg_products_drop
+      else
+        assign color_group_products = cg_products_value
+      endif
+    endif
+    assign needs_metaobject_values_resolution = false
+    if color_group_products == blank
+      assign needs_metaobject_values_resolution = true
+    elsif color_group_products.size > 0
+      assign first_grouped = color_group_products | first
+      if first_grouped.handle == blank
+        assign needs_metaobject_values_resolution = true
+      endif
+    endif
+    if needs_metaobject_values_resolution and color_group_ref != blank and shop.metaobjects != blank and shop.metaobjects.color_group != blank and shop.metaobjects.color_group.values != blank
+      for cg_meta in shop.metaobjects.color_group.values
+        if cg_meta.system.id == color_group_ref
+          assign color_group_products = cg_meta.products.value | default: cg_meta.products
+          break
+        endif
+      endfor
+    endif
+    if color_group_products != blank
+      for grouped_product in color_group_products
+        assign grouped_status = grouped_product.status | append: ''
+        assign grouped_status_is_eligible = false
+        if grouped_status == 'active' or grouped_status == ''
+          assign grouped_status_is_eligible = true
+        endif
+        if grouped_product != blank and grouped_product.handle != blank and grouped_status_is_eligible
+          assign use_metaobject_related_products = true
+          assign related_color_count = related_color_count | plus: 1
+          assign grouped_token = '||' | append: grouped_product.handle
+          unless related_color_handles_string contains grouped_token
+            assign related_color_handles_string = related_color_handles_string | append: grouped_token
+          endunless
+        endif
+      endfor
+    endif
+    if use_metaobject_related_products == false
+      assign related_color_handles_string = '||' | append: product.handle
+      for tag in product.tags
+        if tag contains '@'
+          assign related_handle = tag | replace: '@', '' | strip | handleize
+          assign related_token = '||' | append: related_handle
+          if related_handle != blank and all_products[related_handle] != blank
+            unless related_color_handles_string contains related_token
+              assign related_color_handles_string = related_color_handles_string | append: related_token
+            endunless
+          endif
+        endif
+      endfor
+      assign related_color_handles = related_color_handles_string | remove_first: '||' | split: '||'
+      assign related_color_count = 0
+      for related_handle in related_color_handles
+        assign related_handle = related_handle | strip
+        if related_handle != blank and all_products[related_handle] != blank
+          assign related_color_count = related_color_count | plus: 1
+        endif
+      endfor
+    else
+      assign related_color_handles = related_color_handles_string | remove_first: '||' | split: '||'
+    endif
+  -%}
+  {% if related_color_count > 0 %}
+    {% style %}
+      fieldset.option-selector[data-index="option1"]{
+      display: none;
+      }
       .related-swatches{
-            margin-top: 35px;
-        }
-      {% endstyle %}
-      {% assign colour_handle = tag | replace: '@', '' %}
-      {% assign related_colour = all_products[colour_handle] %}
-      {% render 'product-related-colour', related_product: related_colour %}
+        margin-top: 35px;
+      }
+    {% endstyle %}
+    {% if use_metaobject_related_products %}
+      {% for grouped_product in color_group_products %}
+        {% assign grouped_status = grouped_product.status | append: '' %}
+        {% assign grouped_status_is_eligible = false %}
+        {% if grouped_status == 'active' or grouped_status == '' %}
+          {% assign grouped_status_is_eligible = true %}
+        {% endif %}
+        {% if grouped_product != blank and grouped_product.handle != blank and grouped_status_is_eligible %}
+          {% render 'product-related-colour', related_product: grouped_product %}
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% for related_handle in related_color_handles %}
+        {% assign related_handle = related_handle | strip %}
+        {% if related_handle != blank %}
+          {% assign related_colour = all_products[related_handle] %}
+          {% if related_colour != blank %}
+            {% render 'product-related-colour', related_product: related_colour %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
     {% endif %}
-  {% endfor %} 
+  {% endif %}
 </div> 
 <!-- RELATED PRODUCT SWATCHES - end --> 
 
@@ -277,7 +381,7 @@
                   {%- form 'product', product, id: product_form_id, class: form_class -%}
                     {%- liquid
                       assign inventory_class = ''
-                      assign inventory_threshold = block.settings.inventory_notice_threshold
+                      assign inventory_threshold = settings.low_stock_display_threshold | default: 5
                       assign inventory_qty = current_variant.inventory_quantity
 
                       if inventory_qty > 0
@@ -295,6 +399,13 @@
                         assign inventory_class = ' product-inventory--none'
                       endif
                     -%}
+
+                    <div class="product-stock-notice-wrapper{% if current_variant.available == false or current_variant.inventory_quantity == nil or current_variant.inventory_quantity <= 0 or current_variant.inventory_quantity > inventory_threshold %} product-stock-notice--hidden{% endif %}" data-product-low-stock-notice data-product-low-stock-wrapper data-low-stock-threshold="{{ inventory_threshold }}" aria-live="polite">
+                      {%- if current_variant.available and current_variant.inventory_quantity and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= inventory_threshold -%}
+                        {%- capture count_placeholder -%}{% raw %}{{ count }}{% endraw %}{%- endcapture -%}
+                        <p class="product-stock-notice__message">{% if settings.only_x_left_in_stock_message != blank %}{{ settings.only_x_left_in_stock_message | replace: count_placeholder, current_variant.inventory_quantity }}{% else %}{{ 'products.labels.only_x_left_in_stock' | t: count: current_variant.inventory_quantity }}{% endif %}</p>
+                      {%- endif -%}
+                    </div>
 
                     <select name="id" class="no-js" data-product-select aria-label="{{ 'products.product.selector_label' | t | escape }}">
                       {%- for variant in product.variants -%}
@@ -314,7 +425,8 @@
                           {% unless variant.available %}disabled{% endunless %}
                           {% if variant.inventory_management != blank %}
                             data-stock="{% if variant.inventory_quantity > 0 %}in{% else %}out{% endif %}"
-                            {% if show_inventory_qty %}data-inventory="{{ variant.inventory_quantity }}"{% endif %}
+                            data-inventory="{{ variant.inventory_quantity }}"
+                            {% if show_inventory_qty %}data-inventory-display="{{ variant.inventory_quantity }}"{% endif %}
                           {% endif %}>
                           {{- variant.title -}}
                         </option>

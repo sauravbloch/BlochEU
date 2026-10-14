@@ -121,7 +121,8 @@
                   </h1>
 
 
-                  {% if product.metafields.descriptors.subtitle != blank %}
+                  {%- comment -%}Setting key keeps historical ID for backwards compatibility.{%- endcomment -%}
+                  {% if product.metafields.descriptors.subtitle != blank and settings.show_legacy_subtitle_pdp %}
                     <h2 class="product-detail__subtitle">
                       {{ product.metafields.descriptors.subtitle }}
                     </h2>
@@ -252,21 +253,76 @@
 
                     <!-- RELATED PRODUCT SWATCHES - start -->
                     <div class="related-swatches">
-                      {% for tag in product.tags %}
-                        {% if tag contains '@' %}
-                          {% style %}
-                            fieldset.option-selector[data-index="option1"] {
-                              display: none;
-                            }
-                            .related-swatches {
-                              margin-top: 35px;
-                            }
-                          {% endstyle %}
-                          {% assign colour_handle = tag | replace: '@', '' %}
-                          {% assign related_colour = all_products[colour_handle] %}
-                          {% render 'product-related-colour', related_product: related_colour %}
+                      {%- liquid
+                        assign use_metaobject_related_products = false
+                        assign related_color_count = 0
+                        assign related_color_handles_string = ''
+                        assign color_group_ref = product.metafields.custom.color_group
+                        if color_group_ref != blank and color_group_ref.value != blank and color_group_ref.value.products != blank
+                          assign color_group_products = color_group_ref.value.products.value | default: color_group_ref.value.products
+                          for grouped_product in color_group_products
+                            if grouped_product != blank and grouped_product.handle != blank and grouped_product.status == 'active'
+                              assign use_metaobject_related_products = true
+                              assign related_color_count = related_color_count | plus: 1
+                              assign grouped_token = '||' | append: grouped_product.handle
+                              unless related_color_handles_string contains grouped_token
+                                assign related_color_handles_string = related_color_handles_string | append: grouped_token
+                              endunless
+                            endif
+                          endfor
+                        endif
+                        if use_metaobject_related_products == false
+                          assign related_color_handles_string = '||' | append: product.handle
+                          for tag in product.tags
+                            if tag contains '@'
+                              assign related_handle = tag | replace: '@', '' | strip | handleize
+                              assign related_token = '||' | append: related_handle
+                              if related_handle != blank and all_products[related_handle] != blank
+                                unless related_color_handles_string contains related_token
+                                  assign related_color_handles_string = related_color_handles_string | append: related_token
+                                endunless
+                              endif
+                            endif
+                          endfor
+                          assign related_color_handles = related_color_handles_string | remove_first: '||' | split: '||'
+                          assign related_color_count = 0
+                          for related_handle in related_color_handles
+                            assign related_handle = related_handle | strip
+                            if related_handle != blank and all_products[related_handle] != blank
+                              assign related_color_count = related_color_count | plus: 1
+                            endif
+                          endfor
+                        else
+                          assign related_color_handles = related_color_handles_string | remove_first: '||' | split: '||'
+                        endif
+                      -%}
+                      {% if related_color_count > 0 %}
+                        {% style %}
+                          fieldset.option-selector[data-index="option1"] {
+                            display: none;
+                          }
+                          .related-swatches {
+                            margin-top: 35px;
+                          }
+                        {% endstyle %}
+                        {% if use_metaobject_related_products %}
+                          {% for grouped_product in color_group_products %}
+                            {% if grouped_product != blank and grouped_product.handle != blank and grouped_product.status == 'active' %}
+                              {% render 'product-related-colour', related_product: grouped_product %}
+                            {% endif %}
+                          {% endfor %}
+                        {% else %}
+                          {% for related_handle in related_color_handles %}
+                            {% assign related_handle = related_handle | strip %}
+                            {% if related_handle != blank %}
+                              {% assign related_colour = all_products[related_handle] %}
+                              {% if related_colour != blank %}
+                                {% render 'product-related-colour', related_product: related_colour %}
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
                         {% endif %}
-                      {% endfor %}
+                      {% endif %}
                     </div>
                     <!-- RELATED PRODUCT SWATCHES - end -->
 
@@ -280,7 +336,7 @@
                 {%- form 'product', product, id: product_form_id, class: form_class -%}
                   {%- liquid
                       assign inventory_class = ''
-                      assign inventory_threshold = block.settings.inventory_notice_threshold
+                      assign inventory_threshold = settings.low_stock_display_threshold | default: 5
                       assign inventory_qty = current_variant.inventory_quantity
 
                       if inventory_qty > 0

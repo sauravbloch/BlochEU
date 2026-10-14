@@ -30,6 +30,8 @@
     {{ 'tablet.css' | asset_url | stylesheet_tag: media: 'screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1)' }}
     {{ 'responsive.css' | asset_url | stylesheet_tag: media: 'screen and (max-width: 767px)' }}
     {{ 'old-styles.css' | asset_url | stylesheet_tag }}
+    {{ 'dialog.css' | asset_url | stylesheet_tag }}
+    {{ 'swatches.css' | asset_url | stylesheet_tag }}
 
     <script>
       document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
@@ -79,8 +81,12 @@
         cart_general_hide_note: {{ 'cart.general.hide_note' | t | json }},
         cart_general_show_note: {{ 'cart.general.show_note' | t | json }},
         previous: {{'general.accessibility_labels.previous' | t | json }},
-        next: {{'general.accessibility_labels.next' | t | json }}
+        next: {{'general.accessibility_labels.next' | t | json }},
+        cartShippingMessage: {{ 'cart.general.drawer_add_for_free_shipping' | t | json }},
+        cartFreeShippingMessage: {{ 'cart.general.drawer_qualify_free_shipping' | t | json }},
+        onlyXLeftInStock: {{ 'products.labels.only_x_left_in_stock' | t: count: '[[ count ]]' | json }}
       };
+      theme.cartDrawerShippingThreshold = {{ settings.free_shipping_threshold | default: 0 | times: 100 }};
       theme.routes = {
         account_login_url: '{{ routes.account_login_url }}',
         account_register_url: '{{ routes.account_register_url }}',
@@ -97,7 +103,6 @@
         soldLabelEnabled: {{ settings.sold_label_enabled | json }}
       };
     </script>
-    <script src="{{ 'klaviyo-footer-signup.js' | asset_url }}" defer="defer"></script>
     <script>
       // Open External Links in a new tab
       var links = document.links;
@@ -113,14 +118,16 @@
       <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
     {%- endif -%}
 
-    {%- if settings.swatch_enabled_productpage and settings.swatch_value_list != blank -%}
+    {%- if settings.swatch_enabled_productpage or settings.swatch_enabled_grid and settings.swatch_value_list != blank -%}
       <style>
         {%- assign swatch_lines = settings.swatch_value_list | newline_to_br | strip_newlines | split: '<br />' -%}
         {%- for line in swatch_lines -%}
           {%- assign line_split = line | split: ':' -%}
+          {%- assign swatch_raw = line_split.first | downcase | replace: '"', '' -%}
+          {%- assign swatch_handle = swatch_raw | handleize -%}
           {%- if line_split.last contains '#' -%}
-            [data-swatch="{{ line_split.first | downcase | replace: '"', ''}}"] { --swatch-background-color: {{- line_split.last -}} } {%- else -%} [data-swatch="{{ line_split.first | downcase | replace: '"', ''}}"] { --swatch-background-image: url({{- line_split.last | strip | file_img_url: '128x128', crop: settings.swatch_crop_align -}}) } {%- endif -%} {%- endfor -%}</style>
-        {%- endif -%}
+            [data-swatch="{{ swatch_raw }}"],[data-swatch="{{ swatch_handle }}"] { --swatch-background-color: {{- line_split.last -}} } {%- else -%} [data-swatch="{{ swatch_raw }}"],[data-swatch="{{ swatch_handle }}"] { --swatch-background-image: url({{- line_split.last | strip | file_img_url: '128x128', crop: settings.swatch_crop_align -}}) } {%- endif -%} {%- endfor -%}</style>
+    {%- endif -%}
       {{ content_for_header }}
 
         <!-- GSSTART Coming Soon code start. Do not change -->
@@ -211,6 +218,8 @@
 
         <script src="{{ 'vendor.min.js' | asset_url }}" defer="defer"></script>
         <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+        <script src="{{ 'utils.js' | asset_url }}" defer="defer"></script>
+        <script src="{{ 'dialog.js' | asset_url }}" defer="defer"></script>
 
         {% include 'swymSnippet' %}
         {% render 'special-offers' %}
@@ -265,4 +274,15 @@ document.getElementsByTagName("head")[0].appendChild(sc);},15);
 <script type="text/javascript">window.Beacon('init', '618770c9-1e50-40b8-b769-5a038d266723')</script>
 
   </body>
-</html>
+</html>{%- comment -%}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- if (settings.swatch_enabled_productpage or settings.swatch_enabled_grid)
+    and settings.swatch_value_list != blank -%}"
+  to: "{%- if settings.swatch_enabled_productpage or settings.swatch_enabled_grid
+    and settings.swatch_value_list != blank -%}"
+  position: 6333..6451
+{%- endcomment -%}

@@ -1,4 +1,14 @@
-{%- paginate collection.products by section.settings.pagination_limit -%}
+{%- liquid
+  assign grouped_quickfix_pagination_limit = section.settings.pagination_limit
+  if grouped_quickfix_pagination_limit > 24
+    assign grouped_quickfix_pagination_limit = 24
+  endif
+  assign collection_card_show_swatches = true
+  if template.name == 'collection' and template.suffix == 'promo'
+    assign collection_card_show_swatches = false
+  endif
+-%}
+{%- paginate collection.products by grouped_quickfix_pagination_limit -%}
   {%- liquid
     if section.settings.enable_feature_header and current_page == 1 and collection.products.size > 0
       assign show_feature_header = true
@@ -85,7 +95,7 @@
           </div>
           <div class="collection-header__container collection-header__product-container">
             {%- assign quickbuy_toggle = settings.quickbuy_buttons_toggle -%}
-            {% render 'product-block', product: featured_product, grid_class: ' ', quickbuy: quickbuy_toggle, show_vendor: section.settings.show_vendor %}
+            {% render 'product-block', product: featured_product, grid_class: ' ', quickbuy: quickbuy_toggle, show_vendor: section.settings.show_vendor, show_swatches: collection_card_show_swatches %}
           </div>
         {%- else -%}
           {%- if header_image != blank -%}
@@ -136,9 +146,10 @@
         {% render 'facet-filters', results: collection, paginate: paginate, include_swatch_style_tag: false %}
       {%- endif -%}
 
-      <div class="cc-filters-results">
+      <div class="cc-filters-results" id="filters-results">
+        <h2 class="visually-hidden">{{ 'general.search.results_heading' | t }}</h2>
         {%- if section.settings.show_total and paginate.items > 0 -%}
-          <p class="cc-filters-results__summary">
+          <p class="cc-filters-results__summary" role="alert" aria-live="polite">
             {{- 'collections.general.product_count' | t: count: paginate.items -}} 
           </p>
         {%- endif -%}
@@ -160,10 +171,83 @@
         -%}
         {% capture grid_class_list %}{{ grid_class }} small-down--{{ grid_mobile_class }} grid-flex__item {% endcapture %}
 
+        {%- assign grouped_seen_handles = '|' -%}
         <div class="grid-flex large-row">
           {%- for product in collection.products -%}
-            {% assign quickbuy_toggle = settings.quickbuy_buttons_toggle %}
-            {% render 'product-block', quickbuy: quickbuy_toggle, product: product, grid_class: grid_class_list, show_vendor: section.settings.show_vendor %}
+            {%- if section.settings.hide_out_of_stock == false or product.available -%}
+              {%- assign product_seen_token = '|' | append: product.handle | append: '|' -%}
+              {%- unless grouped_seen_handles contains product_seen_token -%}
+                {%- assign group_handles = product.handle -%}
+                {%- assign grouped_handle_list = blank -%}
+                {%- assign grouped_products = blank -%}
+                {%- assign has_grouped_card = false -%}
+                {%- assign grouped_count = 0 -%}
+
+                {%- comment -%}
+                  Hotfix behavior: keep grouped PLP only from curated metaobject groups.
+                  Skip legacy @tag fallbacks and page-wide reverse scans to avoid Liquid memory spikes.
+                {%- endcomment -%}
+                {%- assign color_group_ref = product.metafields.custom.color_group -%}
+                {%- if color_group_ref != blank and color_group_ref.value != blank and color_group_ref.value.products != blank -%}
+                  {%- assign grouped_products = color_group_ref.value.products.value | default: color_group_ref.value.products -%}
+                  {%- assign group_handles = '' -%}
+                  {%- for gp in grouped_products -%}
+                    {%- if gp != blank and gp.handle != blank -%}
+                      {%- assign grouped_count = grouped_count | plus: 1 -%}
+                      {%- if group_handles == '' -%}
+                        {%- assign group_handles = gp.handle -%}
+                      {%- else -%}
+                        {%- assign group_handles = group_handles | append: '||' | append: gp.handle -%}
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- assign grouped_handle_list = group_handles | split: '||' -%}
+                  {%- if grouped_count > 1 -%}
+                    {%- assign has_grouped_card = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- assign grouped_seen_handles = grouped_seen_handles | append: product.handle | append: '|' -%}
+                {%- comment -%}
+                  Default: one grouped card per family — mark sibling colourway handles seen so they do not render again.
+                  plp_one_row_per_colourway: show each in-collection colourway as its own row (Sorted order per product).
+                {%- endcomment -%}
+                {%- if has_grouped_card -%}
+                  {%- unless section.settings.plp_one_row_per_colourway -%}
+                    {%- for grouped_handle in grouped_handle_list -%}
+                      {%- assign grouped_handle = grouped_handle | strip -%}
+                      {%- if grouped_handle != blank and grouped_handle != product.handle -%}
+                        {%- assign grouped_seen_handles = grouped_seen_handles | append: grouped_handle | append: '|' -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endunless -%}
+                {%- endif -%}
+
+                {% assign quickbuy_toggle = settings.quickbuy_buttons_toggle %}
+                {%- if has_grouped_card -%}
+                  {% render 'product-block-grouped',
+                    product: product,
+                    quickbuy: quickbuy_toggle,
+                    group_handles: grouped_handle_list,
+                    group_products: grouped_products,
+                    active_handle: product.handle,
+                    grid_class: grid_class_list,
+                    show_vendor: section.settings.show_vendor,
+                    collection: collection,
+                    show_swatches: collection_card_show_swatches %}
+                {%- else -%}
+                  {% render 'product-block',
+                    product: product,
+                    quickbuy: quickbuy_toggle,
+                    grid_class: grid_class_list,
+                    show_vendor: section.settings.show_vendor,
+                    collection: collection,
+                    show_swatches: collection_card_show_swatches %}
+                {%- endif -%}
+              {%- else -%}
+              {%- endunless -%}
+            {%- else -%}
+            {%- endif -%}
           {%- else -%}
             {%- if collection.handle == 'all' and collection.all_vendors.size == 0 and collection.all_types.size == 0 -%}
               {%- for i in (1..8) -%}
@@ -187,8 +271,10 @@
         {%- if paginate.pages > 1 -%}
           {% render 'pagination', paginate: paginate %}
         {%- endif -%}
-        
-        
+
+        {%- comment -%}Grouped PLP script once per page (was inlined per card and could exceed Liquid memory on large collections).{%- endcomment -%}
+        {% render 'plp-grouped-swatch-script' %}
+
         <!-- SPLIT DESCRIPTION - start --> 
         {% if collection.description contains '<!-- split -->' %}
         {% assign collectionDescription = collection.description | split:"<!-- split -->"%} <div class="split-description">{{ collectionDescription | last }}</div>
@@ -266,7 +352,24 @@
       },
       {
         "type": "header",
+        "content": "Grouped colour products"
+      },
+      {
+        "type": "checkbox",
+        "id": "plp_one_row_per_colourway",
+        "label": "One row per colourway in collection",
+        "default": false,
+        "info": "When a colour group has several products in this collection, show each as its own grid row (with full swatches) instead of a single card. Order follows collection sort (e.g. Sorted on first load)."
+      },
+      {
+        "type": "header",
         "content": "Filters"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_auto_update_warning",
+        "label": "Show auto-update warning",
+        "default": true
       },
       {
         "type": "checkbox",
@@ -297,6 +400,17 @@
         "label": "Show 'Featured' sort option",
         "default": false,
         "info": "Add your manually sorted order to the sort options"
+      },
+      {
+        "type": "header",
+        "content": "Inventory"
+      },
+      {
+        "type": "checkbox",
+        "id": "hide_out_of_stock",
+        "label": "Hide out-of-stock products",
+        "default": false,
+        "info": "When enabled, products with no available variants are hidden from the collection grid."
       }
     ],
     "blocks": [
